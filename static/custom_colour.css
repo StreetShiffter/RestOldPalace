@@ -1,0 +1,31 @@
+/* Цвет "Индиго" - кнопка */
+/* ОСНОВА */
+.btn-indigo {
+    color: #fff;  /* текст */
+    background-color: #6610f2;/* основа */
+    border-color: #6610f2; /* кайма */
+}
+
+/* ЦВЕТ НАВЕДЕНИЯ */
+.btn-indigo:hover {
+    color: #fff;
+    background-color: #5b0bd8;
+    border-color: #520abc;
+
+}
+
+/* ЦВЕТ КЛИКА */
+.btn-indigo:focus,
+.btn-indigo.focus {
+    box-shadow: 0 0 0 0.25rem rgba(102, 16, 242, 0.5);
+}
+
+/* Цвет "Лимонный" - ссылка */
+
+/* Повышенная специфичность: nav + класс(.nav-link-lemon) + псевдокласс(:hover) */
+nav.navbar .nav-link-lemon {
+    color: #fff !important;
+}
+nav.navbar .nav-link-lemon:hover {
+    color: #dfeb14 !important;
+}

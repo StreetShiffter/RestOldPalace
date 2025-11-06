@@ -175,3 +175,4 @@ cython_debug/
 .pypirc
 
 database.ini
+.DS_Store
