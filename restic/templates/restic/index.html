@@ -1,0 +1,247 @@
+{% extends 'restic/base.html' %}
+{% load static %}
+{% block title %}Главная — Ресторан "Grill House"{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Баннерное фото — на всю ширину экрана */
+.banner-img {
+    width: 100vw; /* Полная ширина экрана */
+    height: 720px; /* Фиксированная высота */
+    object-fit: cover;
+    object-position: center;
+    display: block;
+    margin: 0 auto;
+    margin-left: calc(-50vw + 50%); /* Центрируем посередине */
+}
+
+/* Оверлей — сверху фото */
+.banner-card-overlay {
+    position: absolute;
+    top: 10%; /* Сдвинули вверх */
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+}
+
+/* Кнопка */
+.home-nav-link-gold {
+    display: inline-block;
+    background-color: rgba(0, 0, 0, 0.6);
+    color: white;
+    font-size: 1.5rem;
+    font-weight: bold;
+    padding: 15px 30px;
+    border-radius: 50px;
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: background-color 0.3s;
+}
+
+.home-nav-link-gold:hover {
+    background-color: rgba(0, 0, 0, 0.8);
+    color: #FABA53;
+}
+
+/* Кастомный стиль для "О нас" */
+.about-us-title {
+    font-size: 2.5rem; /* Размер заголовка */
+    font-weight: bold;
+    color: #2c3e50; /* Цвет заголовка */
+    font-family: 'Georgia', serif; /* Шрифт заголовка */
+    margin-bottom: 1rem;
+}
+
+.about-us-text {
+    font-size: 1.2rem; /* Размер текста */
+    line-height: 1.8; /* Межстрочный интервал */
+    color: #34495e; /* Цвет текста */
+    font-family: 'Arial', sans-serif; /* Шрифт текста */
+    text-align: justify; /* Выравнивание по ширине */
+}
+
+/* Контейнер для кружочков */
+.services-icons-container {
+    display: flex;
+    justify-content: center;
+    gap: 10.5rem; /* Отступы между кружочками */
+    margin-bottom: 2rem;
+}
+
+/* Кружок с фото */
+.service-icon {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    overflow: hidden;
+    transition: transform 0.5s ease; /* Плавное увеличение */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Тень */
+}
+
+/* При наведении кружок увеличивается */
+.service-icon:hover {
+    transform: scale(1.5); /* Увеличиваем на 10% */
+}
+
+.service-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Обрезаем фото, чтобы оно заполнило кружок */
+}
+
+/* Заголовок "Наши услуги" */
+.services-title {
+    text-align: center;
+    font-size: 2rem;
+    font-weight: bold;
+    color: #2c3e50;
+    font-family: 'Georgia', serif;
+    margin-bottom: 2rem;
+}
+
+/* Контейнер для услуг */
+.services-grid {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+}
+
+/* Стиль для услуги */
+.service-item {
+    text-align: center;
+    font-size: 1.1rem;
+    color: #34495e;
+    font-family: 'Arial', sans-serif;
+    line-height: 1.6;
+    flex: 1 1 200px; /* Растягиваем, но не меньше 200px */
+    max-width: 250px; /* Максимальная ширина */
+}
+
+/* Контейнер с текстурой */
+.textured-bg {
+    /*background:
+        linear-gradient(rgba(100, 255, 255, 0.8), rgba(255, 255, 255, 0.8)),
+        url('{% static "restic/images/mainall.jpg" %}');*//* Доп градиент */
+
+    background-image: url('{% static "restic/images/mainall.jpg" %}'); /* Путь к текстуре */
+    background-size: cover; /* Растягиваем текстуру */
+    background-position: center; /* Центрируем */
+    background-attachment: fixed; /* Фиксируем фон */
+    padding: 2rem 0; /* Отступы сверху и снизу */
+}
+
+/* Если хотите полупрозрачный оверлей сверху текстуры */
+.textured-bg::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.7); /* Белый с прозрачностью */
+    z-index: -1; /* Позади текста */
+}
+</style>
+
+<link rel="stylesheet" href="{% static 'css/menu_color.css' %}">
+{% endblock %}
+
+{% block content %}
+<!-- Баннер — вне container -->
+<div class="position-relative">
+    <img src="{% static 'restic/images/main.jpg' %}"
+         class="banner-img"
+         alt="Празднования">
+    <div class="banner-card-overlay">
+        <a href="#" class="home-nav-link-gold">Забронировать столик</a>
+    </div>
+</div>
+
+<!-- Контент и услуги -->
+<div class="textured-bg position-relative">
+    <!-- Блок "О нас" -->
+    <div class="container mt-5">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <h3 class="about-us-title">О нас</h3>
+                <p class="about-us-text">
+                    Мы создали пространство, где каждый гость чувствует себя как дома. Наша кухня — это сочетание традиционных рецептов и современных трендов. Мы заботимся о каждом блюде и каждой детали вашего визита.
+                </p>
+            </div>
+
+            <div class="col-md-6 d-flex justify-content-center">
+                <img src="{% static 'restic/images/main2.jpg' %}"
+                     class="img-fluid"
+                     alt="Команда ресторана"
+                     style="max-height: 400px; object-fit: cover; border-radius: 8px;">
+            </div>
+        </div>
+    </div>
+
+    <!-- Блок "Мы - машина времени" -->
+    <div class="container mt-5">
+        <div class="row align-items-center">
+            <!-- Фото слева -->
+            <div class="col-md-6">
+                <img src="{% static 'restic/images/main3.jpg' %}"
+                     class="img-fluid"
+                     alt="Команда ресторана"
+                     style="max-height: 400px; object-fit: cover; border-radius: 8px;">
+            </div>
+
+            <!-- Текст справа -->
+            <div class="col-md-6">
+                <div class="text-end">
+                    <h3 class="about-us-title">МЫ - машина времени</h3>
+                    <p class="about-us-text">
+                        "Прикоснитесь ко времени" - это именно то, что ждет вас здесь. Антураж рубежей 20-х и 30-х годов, живая музыка от лучших исполнителей джаз индустрии,
+                        обстановка не просто из похожих вещей, а именно из тех замечательных времен - времен шика, куража и веселья!
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Блок "Услуги" -->
+    <div class="container mt-5">
+        <h3 class="services-title">Наши услуги</h3>
+
+        <!-- Кружочки с фото -->
+        <div class="services-icons-container">
+            <div class="service-icon">
+                <img src="{% static 'restic/images/service1.jpg' %}" alt="Бронирование">
+            </div>
+            <div class="service-icon">
+                <img src="{% static 'restic/images/service2.jpg' %}" alt="Банкеты">
+            </div>
+            <div class="service-icon">
+                <img src="{% static 'restic/images/service3.jpg' %}" alt="Доставка">
+            </div>
+            <div class="service-icon">
+                <img src="{% static 'restic/images/service4.jpg' %}" alt="Меню">
+            </div>
+        </div>
+
+        <!-- Услуги в ряд -->
+        <div class="services-grid">
+            <div class="service-item">
+                <strong>Бронирование столиков онлайн</strong>
+                <p>Забронируйте столик в удобное для вас время.</p>
+            </div>
+            <div class="service-item">
+                <strong>Организация банкетов и мероприятий</strong>
+                <p>Мы создадим атмосферу для вашего праздника.</p>
+            </div>
+            <div class="service-item">
+                <strong>Доставка еды по городу</strong>
+                <p>Вкусная еда у вас дома или в офисе.</p>
+            </div>
+            <div class="service-item">
+                <strong>Индивидуальное меню по запросу</strong>
+                <p>Создадим меню под ваши предпочтения.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

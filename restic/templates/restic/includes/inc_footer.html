@@ -1,0 +1,101 @@
+{% load static %}
+<style>
+footer {
+    background: url('{% static "restic/images/header-bg-down.jpg" %}') center/cover;
+}
+/* Гарантируем, что колонки не схлопнутся и выровнены по верху */
+.footer-row {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+.footer-col {
+    flex: 1;
+    color: #b6d4fe !important;
+    padding: 0 2rem;
+    text-align: center; /* Центрируем содержимое колонок */
+}
+.footer-col:first-child { flex: 0.8; }   /* Контакты — чуть шире */
+.footer-col:nth-child(2) { flex: 1.5; }   /* Часы — средняя ширина */
+.footer-col:last-child { flex: 1.3; }   /* Форма — самая широкая */
+
+/* Стили для формы */
+.form-control {
+    border-radius: 0.375rem; /* Скругление углов полей */
+    border: 1px solid #ced4da; /* Граница полей */
+    padding: 0.375rem 0.75rem; /* Внутренний отступ */
+    width: 100%; /* Занимает всю ширину родителя */
+    box-sizing: border-box; /* Включает padding в ширину */
+}
+.form-label {
+    font-weight: 500; /* Полужирный шрифт для меток */
+    color: #FABA53 !important;
+    margin-bottom: 0.25rem; /* Меньше отступа снизу */
+    display: block; /* Метка на отдельной строке */
+    text-align: left; /* Метки выравниваем по левому краю */
+}
+.form-control:focus {
+    border-color: #80bdff; /* Цвет границы при фокусе */
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25); /* Тень при фокусе */
+}
+.btn-success {
+    border-radius: 0.375rem; /* Скругление кнопки */
+    padding: 0.375rem 1.5rem; /* Внутренний отступ кнопки */
+    display: block; /* Кнопка как блочный элемент */
+    margin: 0 auto; /* Центрируем кнопку */
+    width: auto; /* Автоматическая ширина кнопки */
+}
+</style>
+
+<footer class="text-white pt-4 pb-3 mt-5" style="background-attachment: fixed;">
+    <div class="container-fluid">
+        <div class="footer-row">
+
+            <!-- Контакты -->
+            <div class="footer-col">
+                <h5>Контакты</h5>
+                <p>📍 Адрес: г. Москва, ул. Уютная, д. 15</p>
+                <p>📞 Телефон: +7 (495) 123-45-67</p>
+                <p>✉️ Email: info@restaurant-uyut.ru</p>
+            </div>
+
+            <!-- Часы работы -->
+            <div class="footer-col">
+                <h5>Часы работы</h5>
+                <p>Пн–Чт: 11:00 – 23:00</p>
+                <p>Пт–Сб: 11:00 – 01:00</p>
+                <p>Вс: 12:00 – 23:00</p>
+            </div>
+
+            <!-- Форма -->
+            <div class="footer-col">
+                <h5>Связаться с нами</h5>
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+                <form method="post" action="">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="name" class="form-label">Имя</label>
+                    <input type="text" class="form-control" id="name" name="name" required>
+                </div>
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="email" name="email" required>
+                </div>
+                <div class="mb-3">
+                    <label for="message" class="form-label">Сообщение</label>
+                    <textarea class="form-control" id="message" name="message" rows="3" required></textarea>
+                </div>
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-success">Отправить</button>
+                </div>
+            </form>
+            </div>
+
+        </div>
+    </div>
+</footer>

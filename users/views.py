@@ -7,14 +7,12 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView
 
 from django.core.mail import send_mail
-from django.db.models import Sum
-from django.shortcuts import redirect, render, get_object_or_404
+from django.shortcuts import redirect, get_object_or_404
 
 from django.views.generic import CreateView, UpdateView
 
 from config.settings import EMAIL_HOST_USER
 
-from django.views import View
 from django.urls import reverse_lazy
 
 

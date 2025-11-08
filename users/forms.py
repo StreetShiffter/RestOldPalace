@@ -95,7 +95,7 @@ class UserProfileForm(forms.ModelForm):
                   "last_name",
                   "email",
                   "phone",
-                  "image"
+                  "image",
                   "city",
                   "telegram_chat_id",
                   ]

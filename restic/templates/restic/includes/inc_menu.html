@@ -1,0 +1,13 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/menu_color.css' %}">
+
+<div style="background: url('{% static 'restic/images/header-bg.jpg' %}') center/cover; height: 350px; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative;">
+    <img src="{% static 'restic/images/logo.png' %}" alt="Логотип" style="width: 450px; position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%);">
+
+    <div style="position: absolute; bottom: 20px; display: flex; gap: 40px;">
+        <a href="#" class="nav-link-gold">Главная</a>
+        <a href="#" class="nav-link-gold">О ресторане</a>
+        <a href="#" class="nav-link-gold">Бронирование</a>
+        <a href="#" class="nav-link-gold">Кабинет</a>
+    </div>
+</div>

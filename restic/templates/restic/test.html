@@ -1,0 +1,106 @@
+<!-- Аналог шаблона, где нижний маркер приклеивается к низу линии -->
+
+{% extends 'restic/base.html' %}
+{% load static %}
+{% block title %}О ресторане{% endblock %}
+
+{% block content %}
+<div id="timeline-container" class="position-relative" style="min-height: 100vh; padding-bottom: 120px; box-sizing: border-box;">
+
+    <!-- Центральная линия -->
+    <div id="timeline-line" class="position-absolute" style="
+        left: 50%;
+        top: 20px;
+        bottom: -20px;
+        width: 5px;
+        background: linear-gradient(to bottom, red, darkred);
+        transform: translateX(-50%);
+        z-index: 1;
+    "></div>
+
+    <!-- Верхний кружок -->
+    <div id="top-circle" class="position-absolute" style="
+        left: 50%;
+        top: 20px;
+        width: 12px;
+        height: 12px;
+        background-color: red;
+        border-radius: 50%;
+        transform: translateX(-50%) translateY(-50%);
+        z-index: 2;
+    "></div>
+
+    <!-- Нижний кружок -->
+    <div id="bottom-circle" class="position-absolute" style="
+        left: 50%;
+        bottom: 50px;
+        width: 12px;
+        height: 12px;
+        background-color: red;
+        border-radius: 50%;
+        transform: translateX(-50%) translateY(50%);
+        z-index: 2;
+    "></div>
+
+    <!-- Маркеры -->
+    <div class="position-absolute timeline-marker" style="top: 60px; left: 50%; transform: translateX(-100%) translateX(12px) translateY(-50%); z-index: 2;">
+        <img src="{% static 'restic/images/timeline-left.png' %}" class="img-fluid" style="max-width: 80px;">
+    </div>
+    <div class="position-absolute timeline-marker" style="top: 100px; left: 50%; transform: translateX(-12px) translateY(-50%); z-index: 2;">
+        <img src="{% static 'restic/images/timeline-right.png' %}" class="img-fluid" style="max-width: 80px;">
+    </div>
+    <div class="position-absolute timeline-marker" style="top: 140px; left: 50%; transform: translateX(-100%) translateX(12px) translateY(-50%); z-index: 2;">
+        <img src="{% static 'restic/images/timeline-left.png' %}" class="img-fluid" style="max-width: 80px;">
+    </div>
+    <div class="position-absolute timeline-marker" style="top: 180px; left: 50%; transform: translateX(-12px) translateY(-50%); z-index: 2;">
+        <img src="{% static 'restic/images/timeline-right.png' %}" class="img-fluid" style="max-width: 80px;">
+    </div>
+    <div class="position-absolute timeline-marker" style="top: 2000px; left: 50%; transform: translateX(-100%) translateX(12px) translateY(-50%); z-index: 2;">
+        <img src="{% static 'restic/images/timeline-left.png' %}" class="img-fluid" style="max-width: 80px;">
+    </div>
+    <div class="position-absolute timeline-marker" style="top: 1500px; left: 50%; transform: translateX(-12px) translateY(-50%); z-index: 2;">
+        <img src="{% static 'restic/images/timeline-right.png' %}" class="img-fluid" style="max-width: 80px;">
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const container = document.getElementById('timeline-container');
+    const line = document.getElementById('timeline-line');
+    const bottomCircle = document.getElementById('bottom-circle');
+    const footerHeight = 100; // Высота подвала (подберите под ваш дизайн)
+    const offset = 20; // Отступ от подвала
+
+    function adjustTimeline() {
+        // Высчитываем, где находится самый нижний элемент (например, маркер на 1800px)
+        let lowestTop = 0;
+        const markers = document.querySelectorAll('.timeline-marker');
+        markers.forEach(marker => {
+            const top = parseInt(marker.style.top);
+            if (top > lowestTop) {
+                lowestTop = top;
+            }
+        });
+
+        // Высота, которую должен занимать контент + отступ до подвала
+        const requiredHeight = lowestTop + offset + footerHeight;
+
+        // Устанавливаем минимальную высоту контейнера, чтобы подвал был внизу
+        container.style.minHeight = requiredHeight + 'px';
+
+        // Линия и нижний кружок теперь будут на 20px выше подвала
+        line.style.bottom = footerHeight + offset + 'px';
+        bottomCircle.style.bottom = footerHeight + offset + 'px';
+    }
+
+    // Вызываем при загрузке
+    adjustTimeline();
+
+    // Если у вас динамически добавляется контент, вызывайте adjustTimeline() снова
+    // window.addEventListener('resize', adjustTimeline);
+});
+</script>
+{% endblock %}

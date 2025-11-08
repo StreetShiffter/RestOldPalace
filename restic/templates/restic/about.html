@@ -1,0 +1,104 @@
+{% extends 'restic/base.html' %}
+{% load static %}
+{% block title %}О ресторане{% endblock %}
+
+{% block content %}
+<div id="timeline-container" class="position-relative" style="min-height: 100vh; padding-bottom: 120px; box-sizing: border-box;">
+
+    <!-- Центральная линия -->
+    <div id="timeline-line" class="position-absolute" style="
+        left: 50%;
+        top: 20px;
+        bottom: -20px; /* Теперь фиксированный отступ снизу */
+        width: 5px;
+        background: linear-gradient(to bottom, red, darkred);
+        transform: translateX(-50%);
+        z-index: 1;
+    "></div>
+
+    <!-- Верхний кружок -->
+    <div id="top-circle" class="position-absolute" style="
+        left: 50%;
+        top: 20px;
+        width: 12px;
+        height: 12px;
+        background-color: red;
+        border-radius: 50%;
+        transform: translateX(-50%) translateY(-50%);
+        z-index: 2;
+    "></div>
+
+    <!-- Нижний кружок -->
+    <div id="bottom-circle" class="position-absolute" style="
+        left: 50%;
+        bottom: -20px; /* Фиксированный отступ от низа контейнера */
+        width: 12px;
+        height: 12px;
+        background-color: darkred;
+        border-radius: 50%;
+        transform: translateX(-50%) translateY(50%);
+        z-index: 2;
+    "></div>
+
+    <!-- Маркеры -->
+    <div class="position-absolute timeline-marker" style="top: 60px; left: 50%; transform: translateX(-100%) translateX(12px) translateY(-50%); z-index: 2;">
+        <img src="{% static 'restic/images/timeline-left.png' %}" class="img-fluid" style="max-width: 80px;">
+    </div>
+    <div class="position-absolute timeline-marker" style="top: 100px; left: 50%; transform: translateX(-12px) translateY(-50%); z-index: 2;">
+        <img src="{% static 'restic/images/timeline-right.png' %}" class="img-fluid" style="max-width: 80px;">
+    </div>
+    <div class="position-absolute timeline-marker" style="top: 140px; left: 50%; transform: translateX(-100%) translateX(12px) translateY(-50%); z-index: 2;">
+        <img src="{% static 'restic/images/timeline-left.png' %}" class="img-fluid" style="max-width: 80px;">
+    </div>
+    <div class="position-absolute timeline-marker" style="top: 180px; left: 50%; transform: translateX(-12px) translateY(-50%); z-index: 2;">
+        <img src="{% static 'restic/images/timeline-right.png' %}" class="img-fluid" style="max-width: 80px;">
+    </div>
+    <div class="position-absolute timeline-marker" style="top: 220px; left: 50%; transform: translateX(-100%) translateX(12px) translateY(-50%); z-index: 2;">
+        <img src="{% static 'restic/images/timeline-left.png' %}" class="img-fluid" style="max-width: 80px;">
+    </div>
+    <!-- Изменил top на 1500px, как в вашем примере -->
+    <div class="position-absolute timeline-marker" style="top: 1500px; left: 50%; transform: translateX(-12px) translateY(-50%); z-index: 2;">
+        <img src="{% static 'restic/images/timeline-right.png' %}" class="img-fluid" style="max-width: 80px;">
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const container = document.getElementById('timeline-container');
+    const line = document.getElementById('timeline-line');
+    const bottomCircle = document.getElementById('bottom-circle');
+    const footerHeight = 100; // Высота подвала (подберите под ваш дизайн)
+    const timelineBottomOffset = 20; // Отступ от низа контейнера до нижнего кружка и линии
+    const requiredPaddingBottom = footerHeight + timelineBottomOffset; // Общий отступ снизу у контейнера
+
+    function adjustTimeline() {
+        // Устанавливаем общий отступ снизу у контейнера, чтобы линия/круг не заходили на подвал
+        container.style.paddingBottom = requiredPaddingBottom + 'px';
+
+        // Высчитываем, где находится самый нижний элемент (например, маркер на 1500px)
+        let lowestTop = 0;
+        const markers = document.querySelectorAll('.timeline-marker');
+        markers.forEach(marker => {
+            const top = parseInt(marker.style.top || 0);
+            if (top > lowestTop) {
+                lowestTop = top;
+            }
+        });
+
+        // Убедимся, что минимальная высота контейнера позволяет разместить самый нижний маркер и отступ до подвала
+        const minContainerHeight = lowestTop + requiredPaddingBottom;
+        if (parseInt(container.style.minHeight) < minContainerHeight) {
+            container.style.minHeight = minContainerHeight + 'px';
+        }
+    }
+
+    // Вызываем при загрузке
+    adjustTimeline();
+
+
+});
+</script>
+{% endblock %}
