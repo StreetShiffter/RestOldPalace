@@ -1,0 +1,236 @@
+{% extends "restic/base.html" %}
+{% load static %}
+{% block title %}Профиль пользователя{% endblock %}
+
+{% block extra_css %}
+<style>
+  .profile-container {
+    max-width: 900px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+  }
+
+  .profile-card {
+    background-color: #FABA53;
+    border-radius: 18px;
+    position: relative;
+    padding: 2rem;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  }
+
+  .profile-card::before {
+    content: '';
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    right: 5px;
+    bottom: 5px;
+    border: 3px solid #470068;
+    border-radius: 15px;
+    pointer-events: none;
+  }
+
+  .profile-card h3 {
+    color: #470068;
+    font-family: 'Georgia', serif;
+    font-weight: bold;
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    text-shadow: 0.5px 0 0 currentColor, -0.5px 0 0 currentColor;
+  }
+
+  .profile-info {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    align-items: center;
+  }
+
+  .profile-text {
+    flex: 1;
+    min-width: 250px;
+  }
+
+  .profile-text p {
+    color: #470068;
+    font-size: 1.1rem;
+    margin: 0.75rem 0;
+    font-weight: 500;
+  }
+
+  .profile-text strong {
+    color: #470068;
+    font-weight: bold;
+  }
+
+  .profile-avatar {
+    flex: 0 0 auto;
+    text-align: center;
+  }
+
+  .profile-avatar img {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    object-fit: cover;
+    object-position: center;
+    border: 3px solid #470068;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  }
+
+  .btn-edit {
+    background-color: #470068;
+    color: white;
+    border: none;
+    padding: 0.6rem 1.5rem;
+    font-size: 1.1rem;
+    font-weight: bold;
+    border-radius: 10px;
+    text-decoration: none;
+    display: inline-block;
+    margin-top: 1rem;
+    transition: background-color 0.3s;
+  }
+
+  .btn-edit:hover {
+    background-color: #35004d;
+    color: white;
+  }
+
+  /* Таблица бронирований */
+  .bookings-section {
+    margin-top: 3rem;
+  }
+
+  .bookings-title {
+    color: #470068;
+    font-family: 'Georgia', serif;
+    font-weight: bold;
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
+
+  .bookings-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+
+  .bookings-table th,
+  .bookings-table td {
+    padding: 1rem;
+    text-align: center;
+    color: #470068;
+    font-size: 1rem;
+  }
+
+  .bookings-table th {
+    background-color: #FABA53;
+    font-weight: bold;
+    border-bottom: 2px solid #470068;
+  }
+
+  .bookings-table tr:nth-child(even) {
+    background-color: #fdf6f0;
+  }
+
+  .bookings-table tr:hover {
+    background-color: #fff1d9;
+  }
+
+  .booking-screenshot img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+  }
+
+  @media (max-width: 768px) {
+    .profile-info {
+      flex-direction: column;
+      text-align: center;
+    }
+    .profile-avatar {
+      order: -1;
+    }
+  }
+</style>
+{% endblock %}
+
+
+{% block content %}
+<div class="profile-container">
+  <!-- Карточка профиля -->
+  <div class="profile-card">
+    <h3>Профиль пользователя</h3>
+    <div class="profile-info">
+      <div class="profile-text">
+        <p><strong>Имя:</strong> {{ user.first_name|default:"—" }}</p>
+        <p><strong>Фамилия:</strong> {{ user.last_name|default:"—" }}</p>
+        <p><strong>Почта:</strong> {{ user.email }}</p>
+        <p><strong>Телефон:</strong> {{ user.phone|default:"—" }}</p>
+        <p><strong>Город:</strong> {{ user.city|default:"—" }}</p>
+        <p><strong>Общая сумма заказов:</strong> {{ user.total_order_amount }} ₽</p>
+        <a href="{% url 'users:profile_edit' %}" class="btn-edit">Редактировать</a>
+      </div>
+      <div class="profile-avatar">
+        {% if user.image %}
+          <img src="{{ user.image.url }}" alt="Аватар">
+        {% else %}
+          <img src="{% static 'restic/images/default_icon.png' %}" alt="Нет аватара">
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- История бронирований -->
+  <div class="bookings-section">
+    <h3 class="bookings-title">История бронирований</h3>
+
+    {% if user.bookings.exists %}
+      <table class="bookings-table">
+        <thead>
+          <tr>
+            <th>Дата</th>
+            <th>Время</th>
+            <th>Столики</th>
+            <th>Сумма</th>
+            <th>Скриншот</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for booking in user.bookings.all %}
+            <tr>
+              <td>{{ booking.booking_date|date:"d.m.Y" }}</td>
+              <td>{{ booking.booking_time|time:"H:i" }}</td>
+              <td>
+                {% for table in booking.tables.all %}
+                  №{{ table.number }}{% if not forloop.last %}, {% endif %}
+                {% endfor %}
+              </td>
+              <td>{{ booking.total_amount }} ₽</td>
+              <td class="booking-screenshot">
+                {% if booking.screenshot %}
+                  <a href="{{ booking.screenshot.url }}" target="_blank">
+                    <img src="{{ booking.screenshot.url }}" alt="Скриншот">
+                  </a>
+                {% else %}
+                  —
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p style="text-align: center; color: #470068; font-size: 1.1rem;">Бронирования отсутствуют.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

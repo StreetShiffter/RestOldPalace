@@ -1,0 +1,164 @@
+{% extends 'restic/base.html' %}
+{% load static %}
+{% block title %}Бронирование столиков{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <!-- Кнопки фильтра -->
+  <div class="mb-3">
+    <button class="btn btn-outline-primary" onclick="setFilter('all')">✅ Все столики</button>
+    <button class="btn btn-outline-info" onclick="setFilter('only_2')">🔵 Только на 2</button>
+    <button class="btn btn-outline-purple" onclick="setFilter('only_4')">🟣 Только на 4</button>
+  </div>
+
+  <!-- Интерактивная карта -->
+  <div style="display: flex; justify-content: center; padding: 20px;">
+    <div id="hall-map" style="position: relative; width: 982px; height: 565px; border: 1px solid #ddd;">
+      <!-- Фоновое изображение БЕЗ растягивания -->
+      <img id="hall-bg" src="" alt="Карта зала"
+           style="position: absolute; top: 0; left: 0; width: 982px; height: 565px;">
+      <!-- Маркеры будут добавлены сюда -->
+    </div>
+  </div>
+
+  <!-- Форма бронирования -->
+  <form method="post" id="booking-form" class="mt-4">
+    {% csrf_token %}
+    <input type="hidden" name="selected_tables" id="id_selected_tables">
+    <input type="hidden" name="current_filter" id="id_current_filter" value="all">
+
+    <div class="row mb-3">
+      <div class="col-md-6">
+        <label class="form-label">Дата бронирования:</label>
+        {{ form.booking_date }}
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Время:</label>
+        {{ form.booking_time }}
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Выбранные столы:</label>
+      <input type="text" id="manual_table_input" class="form-control" placeholder="Ваши столики">
+    </div>
+
+    {% if form.non_field_errors %}
+      <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+    {% endif %}
+
+    <button type="submit" class="btn btn-primary">Забронировать</button>
+  </form>
+</div>
+
+<script>
+  // Конфигурация путей
+  const BASE_IMAGES = {
+    all: "{% static 'restic/images/tables/BASE_ALL.png' %}",
+    only_2: "{% static 'restic/images/tables/BASE_ONLY_2.png' %}",
+    only_4: "{% static 'restic/images/tables/BASE_ONLY_4.png' %}"
+  };
+
+  const tablesData = {{ tables_json|safe }};
+  let currentFilter = 'all';
+  let selectedTables = new Set();
+
+  // Группы столов
+  const tablesAll = tablesData;
+  const tablesOnly2 = tablesData.filter(t => t.capacity === 2);
+  const tablesOnly4 = tablesData.filter(t => t.capacity === 4);
+
+  function getCurrentTables() {
+    switch(currentFilter) {
+      case 'only_2': return tablesOnly2;
+      case 'only_4': return tablesOnly4;
+      default: return tablesAll;
+    }
+  }
+
+  function setFilter(filter) {
+    currentFilter = filter;
+    document.getElementById('id_current_filter').value = filter;
+    redrawMap();
+  }
+
+  function redrawMap() {
+    // Меняем фон
+    document.getElementById('hall-bg').src = BASE_IMAGES[currentFilter];
+
+    // Перерисовываем маркеры
+    const map = document.getElementById('hall-map');
+    map.querySelectorAll('.table-marker').forEach(el => el.remove());
+
+    const currentTables = getCurrentTables();
+    selectedTables.forEach(num => {
+      const table = currentTables.find(t => t.number === num);
+      if (table) {
+        const img = document.createElement('img');
+        img.src = table.capacity === 2
+          ? "{% static 'restic/images/tables/2_ON.png' %}"
+          : "{% static 'restic/images/tables/4_ON.png' %}";
+        img.style.position = 'absolute';
+
+        // Размеры иконок
+        const imgWidth = table.capacity === 2 ? 75 : 128;
+        const imgHeight = table.capacity === 2 ? 33 : 118;
+
+        // Центрируем иконку по точке (x, y)
+        img.style.left = (table.x - imgWidth / 2) + 'px';
+        img.style.top = (table.y - imgHeight / 2) + 'px';
+
+        img.style.pointerEvents = 'none';
+        img.className = 'table-marker';
+        map.appendChild(img);
+      }
+    });
+  }
+
+  function updateForm() {
+    document.getElementById('id_selected_tables').value = Array.from(selectedTables).join(',');
+    document.getElementById('manual_table_input').value = Array.from(selectedTables).join(', ');
+  }
+
+  function syncManualToSelection(value) {
+    const nums = value.split(',').map(n => parseInt(n.trim())).filter(n => !isNaN(n));
+    selectedTables = new Set(nums);
+    redrawMap();
+    updateForm();
+  }
+
+ // Клик по карте
+document.getElementById('hall-map').addEventListener('click', (e) => {
+    const rect = document.getElementById('hall-map').getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    const currentTables = getCurrentTables();
+    for (const table of currentTables) {
+      // Размеры области для клика
+      const w = table.capacity === 2 ? 75 : 128;
+      const h = table.capacity === 2 ? 33 : 118;
+
+      // Границы области (центрированы по table.x, table.y)
+      const left = table.x - w / 2;
+      const right = table.x + w / 2;
+      const top = table.y - h / 2;
+      const bottom = table.y + h / 2;
+
+      if (x >= left && x <= right && y >= top && y <= bottom) {
+        if (selectedTables.has(table.number)) {
+          selectedTables.delete(table.number);
+        } else {
+          selectedTables.add(table.number);
+        }
+        redrawMap();
+        updateForm();
+        return;
+      }
+    }
+  });
+
+  // Инициализация
+  redrawMap();
+</script>
+{% endblock %}

@@ -17,7 +17,10 @@ class Table(models.Model):
 
 class Booking(models.Model):
     '''Модель заказа столика'''
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="Клиент")
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,
+                             on_delete=models.CASCADE,
+                             verbose_name="Клиент",
+                             related_name="bookings")
     tables = models.ManyToManyField(Table, verbose_name="Столики")
 
     booking_date = models.DateField(verbose_name="Дата бронирования")
@@ -31,7 +34,7 @@ class Booking(models.Model):
         editable=False  # будет считаться автоматически
     )
     screenshot = models.ImageField(
-        upload_to='media/bookings/screenshots/',
+        upload_to='bookings/screenshots/',
         blank=True,
         null=True,
         verbose_name="Скриншот карты зала"

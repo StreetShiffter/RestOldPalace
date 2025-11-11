@@ -142,6 +142,119 @@
     background: rgba(255, 255, 255, 0.7); /* Белый с прозрачностью */
     z-index: -1; /* Позади текста */
 }
+
+/* Стили для ленты видео */
+.video-carousel-container {
+    position: relative;
+    width: 100%;
+    overflow: hidden; /* Скрываем всё, что выходит за границы контейнера */
+    margin: 0 auto;
+    padding: 0 40px; /* Отступы для кнопок */
+}
+
+.video-carousel {
+    display: flex;
+    transition: transform 0.5s ease; /* Плавное смещение при прокрутке */
+    gap: 1.5rem; /* Отступы между видео */
+    padding: 1rem 0; /* Отступы сверху и снизу */
+}
+
+.video-wrapper {
+    position: relative;
+    width: 350px; /* Фиксированная ширина */
+    height: 175px; /* Фиксированная высота */
+    border-radius: 12px; /* Закругленные углы */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Тень */
+    overflow: hidden; /* Обрезаем видео, если оно не вписывается */
+    flex-shrink: 0; /* Не сжимаем видео */
+    transition: transform 0.3s ease; /* Плавное увеличение */
+}
+
+.video-wrapper:hover {
+    transform: scale(1.5); /* Увеличиваем на 50% */
+    z-index: 100; /* Поднимаем над другими элементами при наведении */
+}
+
+.video-wrapper video {
+    width: 100%; /* Занимает всю ширину обертки */
+    height: 100%; /* Занимает всю высоту обертки */
+    object-fit: cover; /* Обрезаем видео, чтобы оно заполнило обертку */
+    display: block;
+    transition: opacity 0.3s ease; /* Плавное появление элементов управления */
+}
+
+/* Псевдоэлемент для увеличения и фокуса */
+.video-wrapper::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1; /* Под видео, но над фоном */
+    pointer-events: none; /* Не мешает событиям наведения */
+    opacity: 0; /* Сначала невидим */
+    transition: opacity 0.3s ease;
+}
+
+.video-wrapper:hover::before {
+    opacity: 0.1; /* Легкий оверлей при наведении */
+    background-color: rgba(0, 0, 0, 0.1); /* Цвет оверлея */
+}
+
+/* Стили для кнопок листания */
+.carousel-button {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 200; /* Поверх видео */
+    font-size: 1.5rem;
+    transition: background-color 0.3s;
+}
+
+.carousel-button:hover {
+    background-color: rgba(0, 0, 0, 0.8);
+}
+
+.carousel-button.prev {
+    left: 0;
+}
+
+.carousel-button.next {
+    right: 0;
+}
+
+/* Индикаторы страниц (по желанию) */
+.carousel-indicators {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: #bbb;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.indicator.active {
+    background-color: #470068;
+}
 </style>
 
 <link rel="stylesheet" href="{% static 'css/menu_color.css' %}">
@@ -243,5 +356,124 @@
             </div>
         </div>
     </div>
+
+    <!-- Блок "Видео" -->
+    <div class="container mt-5">
+        <h3 class="services-title">Наши видео</h3>
+        <div class="video-carousel-container">
+                    <!-- КНОПКИ ДОЛЖНЫ БЫТЬ ПРЯМО В CONTAINER, НО ВНЕ CAROUSEL -->
+        <button class="carousel-button prev" id="prevBtn">&#8249;</button>
+        <button class="carousel-button next" id="nextBtn">&#8250;</button>
+        <!-- Индикаторы (по желанию) -->
+            <!--
+            <div class="carousel-indicators" id="carouselIndicators">
+                <button class="indicator active" data-slide="0"></button>
+                <button class="indicator" data-slide="1"></button>
+                <button class="indicator" data-slide="2"></button>
+            </div>
+            -->
+            <div class="video-carousel" id="videoCarousel">
+                <div class="video-wrapper">
+                    <!-- что бы видео не грузить сразу, то уберите preload="metadata"
+                     и ставьте none - тогда будет загрузка по факту-->
+                    <video preload="none" poster="{% static 'restic/images/to/1.png' %}" muted playsinline>
+                        <source src="{% static 'restic/videos/1.mp4' %}" type="video/mp4">
+                        Ваш браузер не поддерживает HTML5 видео.
+                    </video>
+                </div>
+
+                <div class="video-wrapper">
+                    <!-- что бы видео не грузить сразу, то уберите preload="metadata"
+                     и ставьте none - тогда будет загрузка по факту-->
+                    <video preload="none" poster="{% static 'restic/images/to/1.png' %}" muted playsinline>
+                        <source src="{% static 'restic/videos/1.mp4' %}" type="video/mp4">
+                        Ваш браузер не поддерживает HTML5 видео.
+                    </video>
+                </div>
+
+                <div class="video-wrapper">
+                    <!-- что бы видео не грузить сразу, то уберите preload="metadata"
+                     и ставьте none - тогда будет загрузка по факту-->
+                    <video preload="none" poster="{% static 'restic/images/to/1.png' %}" muted playsinline>
+                        <source src="{% static 'restic/videos/1.mp4' %}" type="video/mp4">
+                        Ваш браузер не поддерживает HTML5 видео.
+                    </video>
+                </div>
+
+                <div class="video-wrapper">
+                    <!-- что бы видео не грузить сразу, то уберите preload="metadata"
+                     и ставьте none - тогда будет загрузка по факту-->
+                    <video preload="none" poster="{% static 'restic/images/to/1.png' %}" muted playsinline>
+                        <source src="{% static 'restic/videos/1.mp4' %}" type="video/mp4">
+                        Ваш браузер не поддерживает HTML5 видео.
+                    </video>
+                </div>
+
+        </div>
+    </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const videoWrappers = document.querySelectorAll('.video-wrapper');
+    const carousel = document.getElementById('videoCarousel');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    // const indicators = document.querySelectorAll('.indicator'); // Если используете индикаторы
+
+    const videoWidth = 350; // Ширина видео + отступы (350 + gap)
+    const gap = 1.5 * 16; // 1.5rem в пикселях (обычно 1rem = 16px)
+    const visibleVideos = 3; // Максимум 3 в ряд
+    let currentIndex = 0;
+    const totalVideos = videoWrappers.length;
+    const maxIndex = Math.max(0, totalVideos - visibleVideos);
+
+    function updateCarousel() {
+        const translateX = -(currentIndex * (videoWidth + gap));
+        carousel.style.transform = `translateX(${translateX}px)`;
+
+        // Обновление индикаторов (по желанию)
+        // indicators.forEach((indicator, index) => {
+        //     indicator.classList.toggle('active', index === Math.floor(currentIndex / visibleVideos));
+        // });
+    }
+
+    // Навигация
+    prevBtn.addEventListener('click', () => {
+        if (currentIndex > 0) {
+            currentIndex = Math.max(0, currentIndex - 1);
+            updateCarousel();
+        }
+    });
+
+    nextBtn.addEventListener('click', () => {
+        if (currentIndex < maxIndex) {
+            currentIndex = Math.min(maxIndex, currentIndex + 1);
+            updateCarousel();
+        }
+    });
+
+    // Обработчики для видео
+    videoWrappers.forEach(wrapper => {
+        const video = wrapper.querySelector('video');
+
+        // При наведении на обертку
+        wrapper.addEventListener('mouseenter', () => {
+            video.muted = false; // Включаем звук
+            video.controls = true; // Показываем элементы управления
+            // Попытка воспроизведения (не во всех браузерах разрешено без клика)
+            video.play().catch(e => console.log("Autoplay failed:", e));
+        });
+
+        // Когда курсор уходит
+        wrapper.addEventListener('mouseleave', () => {
+            video.muted = true; // Выключаем звук
+            video.controls = false; // Скрываем элементы управления
+            video.pause(); // Останавливаем воспроизведение
+        });
+    });
+});
+</script>
 {% endblock %}

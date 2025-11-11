@@ -15,10 +15,11 @@
         <a href="{% url 'restic:index' %}" class="nav-link-gold">Главная</a>
         <a href="{% url 'restic:about' %}" class="nav-link-gold">О ресторане</a>
         <a href="{% url 'restic:booking' %}" class="nav-link-gold">Бронирование</a>
-        {% if user.is_authenticated %}
-        <a href="{% url 'users:profile' %}" class="nav-link-gold">Ваш кабинет</a>
-        {% else %}
-        <a href="{% url 'users:login' %}" class="nav-link-gold">Войти</a>
-        {% endif %}
+        <form id="logout-form" method="post" action="{% url 'users:logout' %}" style="display: inline;">
+        {% csrf_token %}
+            <button type="submit" class="nav-link-gold" style="background: none; border: none; cursor: pointer;">
+                Выход
+            </button>
+        </form>
     </div>
 </div>

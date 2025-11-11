@@ -34,7 +34,17 @@ body {
 <body>
 
     <!-- Шапка -->
-    {% include 'restic/includes/inc_menu.html' %}
+    {% if request.resolver_match.url_name == 'profile' or request.resolver_match.url_name == 'profile_edit' %}
+        {% if user.is_authenticated %}
+            {% include 'restic/includes/inc_menu_auth.html' %}
+        {% else %}
+            {% include 'restic/includes/inc_menu.html' %}
+        {% endif %}
+    {% else %}
+        {% include 'restic/includes/inc_menu.html' %}
+    {% endif %}
+
+
 
     <!-- Основное содержимое -->
     <main class="flex-grow-1"> <!-- Растягивается на всё свободное место -->

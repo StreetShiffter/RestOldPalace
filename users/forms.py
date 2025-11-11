@@ -1,7 +1,11 @@
+import uuid
+
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
+from django.forms import ClearableFileInput
+
 from users.models import User  # Убедись, что модель импортирована
 from users.validators import phone_validator
 
@@ -85,6 +89,28 @@ class CustomUserCreationForm(UserCreationForm):
         #     #     raise forms.ValidationError('Этот email-сервис не поддерживается.')
         # return email
 
+    def save(self, commit=True):
+        '''Метод сохранения username (если в модели нет поля, то нужно использовать метод для записи
+        т.к. AbstractUser всегда должен иметь username)'''
+        user = super().save(commit=False)
+        # Генерируем уникальный username из email или UUID
+        if not user.username:
+            # Вариант A: генерируем username из email (без @ и точки)
+            # email_user = user.email.split('@')[0].replace('.', '_')
+            # user.username = email_user[:150]  # обрезаем до лимита
+
+            # Вариант B: генерируем username UUID (гарантированно уникальный)
+            user.username = str(uuid.uuid4()).replace("-", "")[:150]
+
+        if commit:
+            user.save()
+        return user
+
+
+class ImageWidget(ClearableFileInput):
+    '''Специальный виджет для отображения фото в профиле'''
+    template_name = 'users/widgets/image_widget.html'
+
 
 class UserProfileForm(forms.ModelForm):
     """Форма для редактирования профиля (без смены пароля)"""
@@ -99,6 +125,10 @@ class UserProfileForm(forms.ModelForm):
                   "city",
                   "telegram_chat_id",
                   ]
+        # Кастомный виджет для фото в профиле редактирования
+        widgets = {
+            'image': ImageWidget(),
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

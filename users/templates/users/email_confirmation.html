@@ -1,0 +1,73 @@
+{% load static %}
+
+<div style="
+    max-width: 600px;
+    margin: 20px auto;
+    font-family: Arial, sans-serif;
+    background-color: #FABA53;
+    border-radius: 18px;
+    position: relative;
+    padding: 30px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+">
+  <!-- Внутренняя линия -->
+  <div style="
+      position: absolute;
+      top: 5px;
+      left: 5px;
+      right: 5px;
+      bottom: 5px;
+      border: 3px solid #470068;
+      border-radius: 15px;
+      pointer-events: none;
+  "></div>
+
+  <!-- ЛОГОТИП -->
+  <img src="{{ protocol }}://{{ domain }}{% static 'restic/images/logo_mail.png' %}"
+       alt="Логотип Grill House"
+       style="width: 200px; display: block; margin: 0 auto 20px;">
+
+  <h2 style="
+      color: #470068;
+      font-family: 'Georgia', serif;
+      font-weight: bold;
+      font-size: 24px;
+      margin-top: 0;
+      text-align: center;
+      text-shadow: 0.5px 0 0 currentColor, -0.5px 0 0 currentColor;
+  ">Подтверждение email</h2>
+
+  <p style="color: #470068; font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
+    Привет! Спасибо за регистрацию в ресторане "Grill House".
+  </p>
+
+  <p style="color: #470068; font-size: 16px; line-height: 1.6; margin-bottom: 25px;">
+    Для завершения регистрации перейдите по ссылке:
+  </p>
+
+  <!-- КЛИКАБЕЛЬНАЯ ССЫЛКА -->
+  <a href="{{ url }}"
+     style="
+        display: inline-block;
+        background-color: #470068;
+        color: white;
+        text-decoration: none;
+        font-weight: bold;
+        padding: 12px 24px;
+        border-radius: 10px;
+        text-align: center;
+        font-size: 18px;
+        margin: 10px 0;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+     ">
+    Подтвердить email
+  </a>
+
+  <p style="color: #470068; font-size: 16px; line-height: 1.6; margin-top: 25px;">
+    Если вы не регистрировались — просто проигнорируйте это письмо.
+  </p>
+
+  <p style="color: #666; font-size: 14px; font-style: italic; margin-top: 20px;">
+    Это автоматическое сообщение. Пожалуйста, не отвечайте на него.
+  </p>
+</div>

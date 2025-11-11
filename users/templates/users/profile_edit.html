@@ -1,0 +1,162 @@
+{% extends "restic/base.html" %}
+{% load static %}
+{% block title %}Редактирование профиля{% endblock %}
+
+{% block extra_css %}
+<style>
+  .edit-profile-container {
+    max-width: 480px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+  }
+
+  .edit-profile-card {
+    background-color: #FABA53;
+    border-radius: 18px;
+    position: relative;
+    padding: 2rem;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  }
+
+  .edit-profile-card::before {
+    content: '';
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    right: 5px;
+    bottom: 5px;
+    border: 3px solid #470068;
+    border-radius: 15px;
+    pointer-events: none;
+  }
+
+  .edit-profile-card h3 {
+    color: #470068;
+    font-family: 'Georgia', serif;
+    font-weight: bold;
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    text-shadow: 0.5px 0 0 currentColor, -0.5px 0 0 currentColor;
+  }
+
+  .form-group {
+    margin-bottom: 1.25rem;
+  }
+
+  .form-group label {
+    display: block;
+    font-weight: bold;
+    color: #470068;
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+  }
+
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid #470068;
+    border-radius: 10px;
+    background: white;
+    font-size: 1.1rem;
+    box-sizing: border-box;
+  }
+
+  .form-group input:focus,
+  .form-group select:focus,
+  .form-group textarea:focus {
+    outline: none;
+    border-color: #470068;
+    box-shadow: 0 0 0 3px rgba(71, 0, 104, 0.2);
+  }
+
+  .btn-save {
+    background-color: #470068;
+    color: white;
+    border: none;
+    padding: 0.75rem;
+    font-size: 1.2rem;
+    font-weight: bold;
+    width: 100%;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-top: 0.5rem;
+  }
+
+  .btn-save-danger {
+    background-color: darkred;
+    color: white;
+    border: none;
+    padding: 0.75rem;
+    font-size: 1.2rem;
+    font-weight: bold;
+    width: 100%;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-top: 0.5rem;
+  }
+
+  .btn-save:hover {
+    background-color: #35004d;
+  }
+
+  .btn-save-danger:hover {
+    background-color: red;
+    color: black;
+  }
+
+  .btn-cancel {
+    display: block;
+    text-align: center;
+    margin-top: 1rem;
+    color: #470068;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 1.1rem;
+  }
+
+  .btn-cancel:hover {
+    text-decoration: underline;
+  }
+
+  .text-danger {
+    color: #d32f2f;
+    font-size: 0.95rem;
+    margin-top: 0.25rem;
+  }
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="edit-profile-container">
+  <div class="edit-profile-card">
+    <h3>Редактирование профиля</h3>
+
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+
+      {% for field in form %}
+  <div class="form-group">
+    {{ field.label_tag }}
+    {{ field }}
+    {% if field.errors %}
+      <div class="text-danger">{{ field.errors }}</div>
+    {% endif %}
+  </div>
+{% endfor %}
+
+
+      <button type="submit" class="btn-save">Сохранить</button>
+      <a href="{% url 'users:profile' %}" class="btn-cancel">← Отмена</a>
+      <a href="{% url 'users:delete_user' user.pk %}" class="btn btn-save-danger btn-sm"
+      onclick="return confirm('Вы уверены, что хотите удалить пользователя {{ user.username }}?')">Удалить</a>
+    </form>
+  </div>
+</div>
+{% endblock %}

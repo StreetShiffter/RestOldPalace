@@ -43,8 +43,10 @@ RestOldPalace — это современный сайт для брониров
 — Интеграция с YooKassa / Tinkoff (опционально).
 
 ЗАГРУЗКА ФИКСТУР СТОЛОВ:
+необходимо в папке приложения создать папку *fixtures* и загрузить туда свою фикстуру и запустить команду:
 ```
-python manage.py loaddata tables
+python manage.py loaddata fixture_tables
+
 ```
 
 

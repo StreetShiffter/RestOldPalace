@@ -1,0 +1,86 @@
+[
+  {
+    "model": "restic.table",
+    "pk": 1,
+    "fields": {
+      "number": 1,
+      "capacity": 2,
+      "price": "2.00",
+      "x": 99.0,
+      "y": 48.0,
+      "is_active": true
+    }
+  },
+  {
+    "model": "restic.table",
+    "pk": 2,
+    "fields": {
+      "number": 2,
+      "capacity": 2,
+      "price": "2.00",
+      "x": 219.0,
+      "y": 48.0,
+      "is_active": true
+    }
+  },
+  {
+    "model": "restic.table",
+    "pk": 3,
+    "fields": {
+      "number": 3,
+      "capacity": 2,
+      "price": "2.00",
+      "x": 340.0,
+      "y": 48.0,
+      "is_active": true
+    }
+  },
+  {
+    "model": "restic.table",
+    "pk": 12,
+    "fields": {
+      "number": 12,
+      "capacity": 2,
+      "price": "2.00",
+      "x": 179,
+      "y": 522,
+      "is_active": true
+    }
+  },
+  {
+    "model": "restic.table",
+    "pk": 13,
+    "fields": {
+      "number": 13,
+      "capacity": 2,
+      "price": "2.00",
+      "x": 299,
+      "y": 522,
+      "is_active": true
+    }
+  },
+  {
+    "model": "restic.table",
+    "pk": 14,
+    "fields": {
+      "number": 14,
+      "capacity": 2,
+      "price": "2.00",
+      "x": 419,
+      "y": 522,
+      "is_active": true
+    }
+  },
+  {
+    "model": "restic.table",
+    "pk": 15,
+    "fields": {
+      "number": 15,
+      "capacity": 2,
+      "price": "2.00",
+      "x": 540,
+      "y": 522,
+      "is_active": true
+    }
+  }
+]

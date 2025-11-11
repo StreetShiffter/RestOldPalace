@@ -1,0 +1,138 @@
+{% extends "restic/base.html" %}
+{% load static %}
+{% block title %}Вход в профиль{% endblock %}
+
+{% block extra_css %}
+<style>
+  .login-container {
+    max-width: 420px;
+    margin: 3rem auto;
+    padding: 0;
+    position: relative;
+  }
+
+  .login-form {
+    background-color: #FABA53;
+    padding: 2rem;
+    border-radius: 16px;
+    position: relative;
+    /* Внутренняя обводка через псевдоэлемент */
+  }
+
+  /* Внутренняя линия (псевдоэлемент ::before) */
+  .login-form::before {
+    content: '';
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    right: 5px;
+    bottom: 5px;
+    border: 3px solid #470068;
+    border-radius: 13px; /* 16px - 3px = 13px */
+    pointer-events: none; /* Не мешает кликам */
+  }
+
+  .login-form h2 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: #470068;
+    font-weight: bold;
+  }
+
+  /* Поля формы */
+  .login-form label {
+    font-weight: bold;
+    color: #470068;
+    margin-top: 0.75rem;
+  }
+
+  .login-form input[type="text"],
+  .login-form input[type="password"] {
+    width: 100%;
+    padding: 0.6rem 1rem;
+    border: 2px solid #470068;
+    border-radius: 8px;
+    background-color: white;
+    font-size: 1rem;
+    box-sizing: border-box;
+  }
+
+  /* Кнопка */
+  .login-form .btn-login {
+    background-color: #470068;
+    border: none;
+    color: white;
+    padding: 0.65rem;
+    font-size: 1.1rem;
+    font-weight: bold;
+    width: 100%;
+    border-radius: 8px;
+    margin-top: 1.25rem;
+    transition: background-color 0.2s;
+  }
+
+  .login-form .btn-login:hover {
+    background-color: #35004d;
+  }
+
+  /* Ссылки внизу */
+  .login-links {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 1.25rem;
+    font-size: 0.95rem;
+  }
+
+  .login-links a {
+    color: #470068;
+    text-decoration: none;
+    font-weight: bold;
+  }
+
+  .login-links a:hover {
+    text-decoration: underline;
+  }
+
+  /* Сообщения об ошибках */
+  .alert {
+    margin-bottom: 1rem;
+    border-radius: 8px;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="login-container">
+  <div class="login-form">
+    <h2>Вход</h2>
+
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+
+    <form method="post">
+      {% csrf_token %}
+      <div>
+        <label for="{{ form.username.id_for_label }}">Имя пользователя</label>
+        {{ form.username }}
+      </div>
+      <div>
+        <label for="{{ form.password.id_for_label }}">Пароль</label>
+        {{ form.password }}
+      </div>
+
+      <button type="submit" class="btn-login">Войти</button>
+    </form>
+
+    <div class="login-links">
+      <a href="{% url 'users:register' %}">Регистрация</a>
+      <a href="{% url 'users:password_reset' %}">Забыли пароль?</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

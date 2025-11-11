@@ -1,0 +1,17 @@
+{% if widget.is_initial %}
+  <div style="text-align: center; margin-bottom: 1rem;">
+    <img src="{{ widget.value.url }}"
+         alt="Аватар"
+         style="width: 200px; height: 200px; border-radius: 50%; border: 2px solid #470068; object-fit: cover; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">
+  </div>
+
+  <!-- Простой чекбокс "Удалить" -->
+  <div style="text-align: center; margin-bottom: 1rem;">
+    <label style="font-size: 0.95rem; color: darkred; cursor: pointer;">
+      <input type="checkbox" name="{{ widget.checkbox_name }}" id="{{ widget.checkbox_id }}">
+      Удалить аватар
+    </label>
+  </div>
+{% endif %}
+
+<input type="file" name="{{ widget.name }}" {% include "django/forms/widgets/attrs.html" %}>
