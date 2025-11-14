@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     "django_filters",
     "drf_spectacular",
     "django_celery_beat",
+    'django_cleanup.apps.CleanupConfig',
     # "corsheaders",
 ]
 

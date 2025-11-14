@@ -18,6 +18,7 @@ from django.contrib.auth.views import (
 )
 
 
+
 app_name = UsersConfig.name
 
 urlpatterns = [

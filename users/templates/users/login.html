@@ -1,3 +1,4 @@
+<!-- users/login.html -->
 {% extends "restic/base.html" %}
 {% load static %}
 {% block title %}Вход в профиль{% endblock %}
@@ -16,10 +17,8 @@
     padding: 2rem;
     border-radius: 16px;
     position: relative;
-    /* Внутренняя обводка через псевдоэлемент */
   }
 
-  /* Внутренняя линия (псевдоэлемент ::before) */
   .login-form::before {
     content: '';
     position: absolute;
@@ -28,8 +27,8 @@
     right: 5px;
     bottom: 5px;
     border: 3px solid #470068;
-    border-radius: 13px; /* 16px - 3px = 13px */
-    pointer-events: none; /* Не мешает кликам */
+    border-radius: 13px;
+    pointer-events: none;
   }
 
   .login-form h2 {
@@ -39,14 +38,13 @@
     font-weight: bold;
   }
 
-  /* Поля формы */
   .login-form label {
     font-weight: bold;
     color: #470068;
     margin-top: 0.75rem;
   }
 
-  .login-form input[type="text"],
+  .login-form input[type="email"],
   .login-form input[type="password"] {
     width: 100%;
     padding: 0.6rem 1rem;
@@ -57,7 +55,6 @@
     box-sizing: border-box;
   }
 
-  /* Кнопка */
   .login-form .btn-login {
     background-color: #470068;
     border: none;
@@ -75,7 +72,6 @@
     background-color: #35004d;
   }
 
-  /* Ссылки внизу */
   .login-links {
     display: flex;
     justify-content: space-between;
@@ -93,7 +89,6 @@
     text-decoration: underline;
   }
 
-  /* Сообщения об ошибках */
   .alert {
     margin-bottom: 1rem;
     border-radius: 8px;
@@ -115,15 +110,27 @@
       {% endfor %}
     {% endif %}
 
+    {% if form.non_field_errors %}
+      <div class="alert alert-danger">
+        {{ form.non_field_errors }}
+      </div>
+    {% endif %}
+
     <form method="post">
       {% csrf_token %}
       <div>
-        <label for="{{ form.username.id_for_label }}">Имя пользователя</label>
+        <label for="{{ form.username.id_for_label }}">Email</label>
         {{ form.username }}
+        {% if form.username.errors %}
+          <div class="text-danger">{{ form.username.errors }}</div>
+        {% endif %}
       </div>
       <div>
         <label for="{{ form.password.id_for_label }}">Пароль</label>
         {{ form.password }}
+        {% if form.password.errors %}
+          <div class="text-danger">{{ form.password.errors }}</div>
+        {% endif %}
       </div>
 
       <button type="submit" class="btn-login">Войти</button>
@@ -131,7 +138,10 @@
 
     <div class="login-links">
       <a href="{% url 'users:register' %}">Регистрация</a>
-      <a href="{% url 'users:password_reset' %}">Забыли пароль?</a>
+      <!-- Показываем "Забыли пароль?" ТОЛЬКО если email существует -->
+      {% if email_exists %}
+        <a href="{% url 'users:password_reset' %}">Забыли пароль?</a>
+      {% endif %}
     </div>
   </div>
 </div>

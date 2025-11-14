@@ -1,10 +1,10 @@
 import uuid
 
-from django import forms
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 from django.forms import ClearableFileInput
+from django import forms
 
 from users.models import User  # Убедись, что модель импортирована
 from users.validators import phone_validator
@@ -105,6 +105,26 @@ class CustomUserCreationForm(UserCreationForm):
         if commit:
             user.save()
         return user
+
+
+class CustomAuthenticationForm(AuthenticationForm):
+    username = forms.EmailField(
+        widget=forms.EmailInput(attrs={"class": "form-control", "placeholder": "Ваш email"}),
+        label="Email"
+    )
+
+    def clean_username(self):
+        email = self.cleaned_data.get("username")
+        if not User.objects.filter(email=email).exists():
+            # Не раскрываем, что email не существует — для безопасности
+            raise forms.ValidationError("Неверный email или пароль.")
+        return email
+
+    def confirm_login_allowed(self, user):
+        # Если пользователь не активен (не подтвердил email)
+        if not user.is_active:
+            raise forms.ValidationError("Пожалуйста, подтвердите email, прежде чем войти.")
+        return super().confirm_login_allowed(user)
 
 
 class ImageWidget(ClearableFileInput):

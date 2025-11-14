@@ -1,6 +1,6 @@
 {% extends 'restic/base.html' %}
 {% load static %}
-{% block title %}Бронирование столиков{% endblock %}
+{% block title %}Редактировать бронь{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -88,62 +88,19 @@
     gap: 0.5rem;
     flex-wrap: wrap;
   }
-
-  .bookings-list-custom {
-    padding: 0.5rem 0;
-  }
-
-  .booking-item {
-    padding: 0.75rem 0;
-    color: #470068;
-  }
-
-  .booking-item strong,
-  .booking-item em,
-  .booking-item .text-muted {
-    color: #470068;
-  }
-
-  .booking-item em {
-    font-style: italic;
-  }
-
-  .booking-divider {
-    border-top: 1px solid #470068;
-    margin: 0.75rem 0;
-  }
-
-  .booking-item .btn-edit {
-    background-color: #470068;
-    color: white;
-    border: none;
-    padding: 0.25rem 0.6rem;
-    font-size: 0.85rem;
-    font-weight: bold;
-    border-radius: 6px;
-    text-decoration: none;
-    display: inline-block;
-    line-height: 1.2;
-    white-space: nowrap;
-  }
-
-  .booking-item .btn-edit:hover {
-    background-color: #35004d;
-    color: white;
-  }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="container mt-4">
-  <!-- Кнопки фильтра -->
+  <h2>Редактирование бронирования</h2>
+
   <div class="filter-buttons">
     <button class="btn btn-outline-primary" onclick="setFilter('all')">✅ Все столики</button>
     <button class="btn btn-outline-info" onclick="setFilter('only_2')">🔵 Только на 2</button>
     <button class="btn btn-outline-purple" onclick="setFilter('only_4')">🟣 Только на 4</button>
   </div>
 
-  <!-- Карта зала -->
   <div style="display: flex; justify-content: center; padding: 20px;">
     <div id="hall-map" style="position: relative; width: 982px; height: 565px; border: 1px solid #ddd;">
       <img id="hall-bg" src="" alt="Карта зала"
@@ -151,137 +108,56 @@
     </div>
   </div>
 
-<!-- Форма бронирования -->
-<div class="booking-container">
-  <div class="booking-form">
-    <h2>Бронирование столика</h2>
-
-    {% if messages %}
-      {% for message in messages %}
-        <div class="alert alert-{{ message.tags }}">{{ message }}</div>
-      {% endfor %}
-    {% endif %}
-
-    <form method="post" id="booking-form">
-      {% csrf_token %}
-      <input type="hidden" name="selected_tables" id="id_selected_tables">
-      <input type="hidden" name="screenshot_data" id="id_screenshot_data">
-
-      <div class="form-group">
-        <label>Дата:</label>
-        {{ form.booking_date }}
-      </div>
-      <div class="form-group">
-        <label>Время:</label>
-        {{ form.booking_time }}
-      </div>
-      <div class="form-group">
-        <label>Длительность:</label>
-        {{ form.duration_hours }}
-      </div>
-
-      {% if not user.is_authenticated %}
-        <div class="form-group">
-          <label>Ваше имя:</label>
-          {{ form.guest_first_name }}
-        </div>
-        <div class="form-group">
-          <label>Ваша фамилия:</label>
-          {{ form.guest_last_name }}
-        </div>
-        <div class="form-group">
-          <label>Ваш телефон (обязательно):</label>
-          {{ form.phone_for_unauthorized }}
-          {% if form.phone_for_unauthorized.errors %}
-            <div class="text-danger">{{ form.phone_for_unauthorized.errors }}</div>
-          {% endif %}
-        </div>
-      {% endif %}
-
-      <div class="form-group">
-        <label>Выбранные столы:</label>
-        <input type="text" id="manual_table_input" class="form-control" readonly>
-      </div>
-
-      <div class="form-group">
-        <label>Итого:</label>
-        <div id="total-amount" style="font-size: 1.3rem; color: #470068; font-weight: bold;">0 ₽</div>
-      </div>
-
-      {% if form.non_field_errors %}
-        <div class="alert alert-danger">{{ form.non_field_errors }}</div>
-      {% endif %}
-
-      <!-- Подсказка для гостей -->
-      {% if not user.is_authenticated %}
-        <div class="alert alert-info mt-3" style="font-size: 0.95rem; padding: 0.75rem; margin-bottom: 1rem;">
-          <strong>Внимание!</strong> Вы не авторизованы. Запомните или сохраните всю информацию о бронировании.
-          Для отмены или изменений свяжитесь с администратором по телефону.
-        </div>
-      {% endif %}
-
-      <button type="submit" class="btn-submit">Забронировать</button>
-    </form>
-  </div>
-</div>
-
-  <!-- Список бронирований -->
-  <div class="booking-container mt-4">
+  <div class="booking-container">
     <div class="booking-form">
-      <h2 class="text-center mb-3">Список бронирований</h2>
+      <form method="post" id="booking-form">
+        {% csrf_token %}
+        <input type="hidden" name="selected_tables" id="id_selected_tables">
+        <input type="hidden" name="screenshot_data" id="id_screenshot_data">
 
-      {% if bookings %}
-        <div class="bookings-list-custom">
-          {% for booking in bookings %}
-            <div class="booking-item">
-              <div class="row align-items-center g-2">
-                <div class="col-3"><strong>Дата:</strong> {{ booking.booking_date }}</div>
-                <div class="col-3"><strong>Время:</strong> {{ booking.booking_time }}</div>
-                <div class="col-2"><strong>Длит.:</strong> {{ booking.booking_period }}</div>
-                <div class="col-2">
-                  <strong>Столы:</strong>
-                  {% for table in booking.tables.all %}
-                    #{{ table.number }}{% if not forloop.last %}, {% endif %}
-                  {% endfor %}
-                </div>
-                <div class="col-2 text-end" style="min-width: 90px;">
-                  {% if user.is_staff or user.is_authenticated and booking.user == user %}
-                    <a href="{% url 'restic:booking_detail' booking.pk %}" class="btn-edit">Подробнее</a>
-                  {% else %}
-                    <span class="text-muted">—</span>
-                  {% endif %}
-                </div>
-              </div>
-
-              {% if user.is_staff %}
-                <div class="row mt-2 small">
-                  <div class="col-4"><strong>Клиент:</strong>
-                    {% if booking.user %}
-                      {{ booking.user.email }}
-                    {% else %}
-                      <em>Гость</em>
-                    {% endif %}
-                  </div>
-                  <div class="col-3"><strong>Телефон:</strong> {{ booking.phone_for_unauthorized|default:"—" }}</div>
-                  <div class="col-3"><strong>Сумма:</strong> {{ booking.total_amount }} ₽</div>
-                </div>
-              {% endif %}
-            </div>
-
-            {% if not forloop.last %}
-              <hr class="booking-divider">
-            {% endif %}
-          {% endfor %}
+        <div class="form-group">
+          <label>Дата:</label>
+          {{ form.booking_date }}
         </div>
-      {% else %}
-        <p class="text-center">Нет бронирований.</p>
-      {% endif %}
+        <div class="form-group">
+          <label>Время:</label>
+          {{ form.booking_time }}
+        </div>
+        <div class="form-group">
+          <label>Длительность:</label>
+          {{ form.duration_hours }}
+        </div>
+
+        {% if not user.is_authenticated %}
+          <div class="form-group">
+            <label>Ваш телефон (обязательно):</label>
+            {{ form.phone_for_unauthorized }}
+          </div>
+        {% endif %}
+
+        <div class="form-group">
+          <label>Выбранные столы:</label>
+          <input type="text" id="manual_table_input" class="form-control" readonly>
+        </div>
+
+        <div class="form-group">
+          <label>Итого:</label>
+          <div id="total-amount" style="font-size: 1.3rem; color: #470068; font-weight: bold;">0 ₽</div>
+        </div>
+
+        {% if form.non_field_errors %}
+          <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+        {% endif %}
+
+        <button type="submit" class="btn-submit">Сохранить изменения</button>
+      </form>
     </div>
   </div>
 </div>
 
-<!-- Подключаем html2canvas и основной JS -->
+<!-- Подключаем html2canvas -->
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
 <script>
   const BASE_IMAGES = {
     all: "{% static 'restic/images/tables/BASE_ALL.png' %}",
@@ -333,27 +209,55 @@
     return true;
   }
 
-  document.getElementById('booking-form').addEventListener('submit', async function(e) {
-    e.preventDefault();
+  // === ИСПРАВЛЕННЫЙ ОБРАБОТЧИК ОТПРАВКИ ===
+  let isFormSubmitting = false;
 
-    if (!validateBookingTime()) return;
+  document.getElementById('booking-form').addEventListener('submit', async function(e) {
+    if (isFormSubmitting) {
+      e.preventDefault();
+      return;
+    }
+
+    if (!validateBookingTime()) {
+      e.preventDefault();
+      return;
+    }
+
+    e.preventDefault(); // Останавливаем обычную отправку
+    isFormSubmitting = true;
+
+    const submitBtn = document.querySelector('.btn-submit');
+    const originalText = submitBtn.textContent;
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Создание скриншота...';
 
     try {
+      // Даём время на рендеринг изображений
+      await new Promise(r => setTimeout(r, 100));
+
       const mapElement = document.getElementById('hall-map');
       const canvas = await html2canvas(mapElement, {
         backgroundColor: null,
-        scale: 1
+        scale: 1,
+        useCORS: true,
+        allowTaint: true
       });
+
       const imageData = canvas.toDataURL('image/png');
       document.getElementById('id_screenshot_data').value = imageData;
-    } catch (err) {
-      console.error("Ошибка создания скриншота:", err);
-      alert("Не удалось создать скриншот. Бронь будет создана без него.");
-    }
+      console.log("✅ Скриншот создан и добавлен в форму");
 
-    this.submit();
+    } catch (err) {
+      console.error("❌ Ошибка создания скриншота:", err);
+      alert("Не удалось создать скриншот. Изменения сохранятся без изображения.");
+    } finally {
+      // В ЛЮБОМ случае отправляем форму
+      submitBtn.textContent = 'Отправка...';
+      this.submit(); // ← это отправит форму С текущим значением screenshot_data
+    }
   });
 
+  // === ОСТАЛЬНОЙ JS (без изменений) ===
   const tablesData = {{ tables_json|safe }};
   const tablePrices = {};
   tablesData.forEach(t => tablePrices[t.number] = t.price || 0);
@@ -361,7 +265,7 @@
   const existingBookings = {{ bookings_json|safe }};
 
   let currentFilter = 'all';
-  let selectedTables = {% if selected_tables_initial %}new Set({{ selected_tables_initial|safe }}){% else %}new Set(){% endif %};
+  let selectedTables = new Set({{ selected_tables_initial|safe }});
 
   function getCurrentTables() {
     if (currentFilter === 'only_2') return tablesData.filter(t => t.capacity === 2);
@@ -372,7 +276,6 @@
   function isTableAvailable(tableNumber, startDate, startTime, durationHours) {
     const startDateTime = new Date(`${startDate}T${startTime}`);
     const endDateTime = new Date(startDateTime.getTime() + (durationHours * 60 * 60 * 1000));
-
     for (const booking of existingBookings) {
       if (booking.table_numbers.includes(tableNumber)) {
         const bookingStart = new Date(booking.start_datetime);

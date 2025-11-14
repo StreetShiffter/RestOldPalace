@@ -1,0 +1,130 @@
+{% extends 'restic/base.html' %}
+{% load static %}
+{% block title %}Бронирование #{{ booking.id }}{% endblock %}
+
+{% block extra_css %}
+<style>
+  .booking-container {
+    max-width: 600px;
+    margin: 2rem auto;
+    padding: 0;
+  }
+  .booking-form {
+    background-color: #FABA53;
+    padding: 2rem;
+    border-radius: 16px;
+    position: relative;
+  }
+  .booking-form::before {
+    content: '';
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    right: 5px;
+    bottom: 5px;
+    border: 3px solid #470068;
+    border-radius: 13px;
+    pointer-events: none;
+  }
+  .booking-form h2 {
+    text-align: center;
+    color: #470068;
+    font-weight: bold;
+    margin-bottom: 1.5rem;
+  }
+  /* 🔸 Текст в цвет заголовка */
+  .booking-form p,
+  .booking-form strong {
+    margin-bottom: 0.75rem;
+    color: #470068; /* ← основной цвет текста */
+  }
+  .booking-form em,
+  .booking-form .text-muted {
+    color: #5a007a !important; /* темно-фиолетовый для гостя/доп.инфо */
+  }
+  .btn {
+    border-radius: 8px !important;
+    font-weight: bold;
+  }
+  /* 🔹 Кнопка "Редактировать" — синяя */
+  .btn-edit-blue {
+    background-color: #0d6efd !important;
+    border-color: #0d6efd !important;
+    color: white !important;
+  }
+  .btn-edit-blue:hover {
+    background-color: #0b5ed7 !important;
+    border-color: #0a58ca !important;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="booking-container">
+    <div class="booking-form">
+      <h2>Бронирование #{{ booking.id }}</h2>
+
+      <p><strong>Дата:</strong> {{ booking.booking_date }}</p>
+      <p><strong>Время:</strong> {{ booking.booking_time }}</p>
+      <p><strong>Длительность:</strong> {{ booking.booking_period }}</p>
+      <p><strong>Столы:</strong>
+        {% for table in booking.tables.all %}
+          #{{ table.number }}{% if not forloop.last %}, {% endif %}
+        {% endfor %}
+      </p>
+      <p><strong>Сумма заказа:</strong> {{ booking.total_amount }} ₽</p>
+
+      {% if user.is_staff %}
+        <p><strong>Сумма заказа:</strong> {{ booking.total_amount }} ₽</p>
+        <p><strong>Клиент:</strong>
+          {% if booking.user %}
+            {{ booking.user.email }} ({{ booking.user.first_name|default:"—" }})
+          {% else %}
+            <em>Гость</em> (телефон: {{ booking.phone_for_unauthorized|default:"не указан" }})
+          {% endif %}
+        </p>
+      {% endif %}
+      {% if booking.screenshot %}
+        <div class="mt-3">
+          <strong>Скриншот карты:</strong><br>
+          <img src="{{ booking.screenshot.url }}" alt="Скриншот бронирования" style="max-width: 100%; border: 1px solid #ccc; border-radius: 8px;">
+        </div>
+      {% endif %}
+
+      <!-- КНОПКИ ДЕЙСТВИЙ -->
+      <div class="d-flex gap-2 mt-4">
+        {% if booking.is_cancelled %}
+          <button class="btn btn-secondary w-100" disabled>Бронь отменена</button>
+        {% elif user.is_staff or user.is_authenticated and booking.user == user %}
+          <a href="{% url 'restic:booking_edit' booking.pk %}" class="btn btn-edit-blue w-100">Редактировать</a>
+          <form method="post" action="{% url 'restic:booking_cancel' booking.pk %}" class="w-100">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger w-100" onclick="return confirm('Отменить бронирование?')">Отменить</button>
+          </form>
+        {% elif not user.is_authenticated and not booking.user %}
+          <!-- Гость: форма запроса -->
+          <form method="post" action="{% url 'restic:booking_cancel' booking.pk %}" class="w-100">
+            {% csrf_token %}
+            <div class="mb-2">
+              <label>Почему хотите отменить?</label>
+              <textarea name="reason" class="form-control" rows="2" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-outline-danger w-100">Отправить запрос</button>
+          </form>
+        {% else %}
+          <!-- На всякий случай: пользователь не имеет доступа к управлению -->
+          <button class="btn btn-secondary w-100" disabled>Нет доступа к управлению</button>
+        {% endif %}
+      </div>
+
+      <div class="mt-3">
+        <a href="{% url 'restic:booking' %}" class="btn btn-secondary w-100">← Назад к бронированию</a>
+      </div>
+      <div class="mt-3">
+        <a href="{% url 'users:profile' %}" class="btn btn-success w-100">← Назад в кабинет</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

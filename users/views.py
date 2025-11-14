@@ -1,14 +1,16 @@
 import secrets
 from django.contrib import messages
-from django.contrib.auth import logout
+from django.contrib.auth import logout, get_user_model
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.views import LoginView
 from django.core.exceptions import PermissionDenied
+from django import forms
 from django.shortcuts import redirect, render, get_object_or_404
 from django.views.generic import CreateView, UpdateView, ListView
 from config.settings import EMAIL_HOST_USER
-from .forms import CustomUserCreationForm, UserProfileForm
+from .forms import CustomUserCreationForm, UserProfileForm, CustomAuthenticationForm
 from django.views import View
 from django.urls import reverse_lazy
 from .models import User
@@ -16,6 +18,9 @@ from .models import User
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
+
+from .services import send_telegram_message
+
 
 class UserRegisterView(CreateView):
     """Контроллер регистрации пользователя"""
@@ -30,6 +35,15 @@ class UserRegisterView(CreateView):
         token = secrets.token_hex(16)  # Генерация токена
         user.token = token
         user.save()
+
+        # === Отправка Telegram =============
+        if user.telegram_chat_id:
+            try:
+                message = "🎉 Добро пожаловать в ресторан Grill House! Я ваш помощник по бронированию и оплате столиков."
+                send_telegram_message(chat_id=user.telegram_chat_id, message=message)
+            except Exception as e:
+                print(f"Ошибка отправки Telegram: {e}")
+        # ====================================
 
         host = self.request.get_host()
         url = f"http://{host}/users/email-confirm/{token}/"
@@ -74,15 +88,25 @@ def email_verification(request, token):
     return redirect("users:login")
 
 
-class CustomLoginView(LoginView):
-    """Контроллер входа в профиль (Использует AuthiticationCreateForm по умолчанию)"""
 
+
+class CustomLoginView(LoginView):
     template_name = "users/login.html"
     success_url = reverse_lazy("users:profile")
+    form_class = CustomAuthenticationForm
+
+    def form_invalid(self, form):
+        # Передаём в контекст, существует ли email — для показа кнопки "Забыли пароль?"
+        username = form.data.get('username')
+        email_exists = User.objects.filter(email=username).exists() if username else False
+
+        context = self.get_context_data(form=form)
+        context['email_exists'] = email_exists
+        return self.render_to_response(context)
 
     def form_valid(self, form):
         user = form.get_user()
-        if user.token:  # если токен ещё есть — обнуляем
+        if user.token:
             user.token = None
             user.save()
         return super().form_valid(form)

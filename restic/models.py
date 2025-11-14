@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from django.db import models
 from config import settings
 
@@ -16,30 +18,47 @@ class Table(models.Model):
 
 
 class Booking(models.Model):
-    '''Модель заказа столика'''
-    user = models.ForeignKey(settings.AUTH_USER_MODEL,
-                             on_delete=models.CASCADE,
-                             verbose_name="Клиент",
-                             related_name="bookings")
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="Клиент",
+        related_name="bookings"
+    )
+    guest_first_name = models.CharField("Имя", max_length=100, blank=True, null=True)
+    guest_last_name = models.CharField("Фамилия", max_length=100, blank=True, null=True)
+    phone_for_unauthorized = models.CharField(
+        max_length=12,
+        blank=True,
+        null=True,
+        verbose_name="Телефон (если не авторизован)"
+    )
+
     tables = models.ManyToManyField(Table, verbose_name="Столики")
-
     booking_date = models.DateField(verbose_name="Дата бронирования")
-    booking_time = models.TimeField(verbose_name="Время бронирования")
-    booking_period = models.TimeField(verbose_name="Длительность бронирования")
-
+    booking_time = models.TimeField(verbose_name="Время начала")
+    booking_period = models.DurationField(
+        verbose_name="Длительность",
+        default=timedelta(hours=2)
+    )
     total_amount = models.DecimalField(
         max_digits=10,
         decimal_places=2,
+        default=0.00,
         verbose_name="Сумма",
-        editable=False  # будет считаться автоматически
+        editable=False
     )
+
+    is_cancelled = models.BooleanField(default=False, verbose_name="Отменено")
+    cancelled_at = models.DateTimeField(null=True, blank=True, verbose_name="Время отмены")
+
     screenshot = models.ImageField(
         upload_to='bookings/screenshots/',
         blank=True,
         null=True,
         verbose_name="Скриншот карты зала"
     )
-
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -48,16 +67,12 @@ class Booking(models.Model):
         verbose_name_plural = "Бронирования"
 
     def __str__(self):
-        return f"Бронь {self.user.username} на {self.booking_date} в {self.booking_time}"
+        if self.user:
+            return f"👤 {self.user.email} — {self.booking_date} в {self.booking_time}"
+        else:
+            return f"📞 {self.phone_for_unauthorized} — {self.booking_date} в {self.booking_time}"
 
-    def save(self, *args, **kwargs):
-        # Автоматический расчёт суммы: 2 рубля за стол на 2, 4 рубля за стол на 4
-        if not self.pk:  # только при создании
-            total = 0
-            for table in self.tables.all():
-                total += table.price
-            self.total_amount = total
-        super().save(*args, **kwargs)
+
 
 class Feedback(models.Model):
     email = models.EmailField(verbose_name="Email")
