@@ -1,6 +1,9 @@
 from django.apps import AppConfig
 
-
 class ResticConfig(AppConfig):
-    default_auto_field = "django.db.models.BigAutoField"
-    name = "restic"
+    '''Присваивание пути приложения'''
+    default_auto_field = 'django.db.models.BigAutoField'
+    name = 'restic'
+
+    def ready(self):
+        import restic.signals

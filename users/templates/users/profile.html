@@ -176,7 +176,8 @@
         <p><strong>Почта:</strong> {{ user.email }}</p>
         <p><strong>Телефон:</strong> {{ user.phone|default:"—" }}</p>
         <p><strong>Город:</strong> {{ user.city|default:"—" }}</p>
-        <p><strong>Общая сумма заказов:</strong> {{ user.total_order_amount }} ₽</p>
+        <p><strong>Общая сумма заказов:</strong> {{ total_amount }} ₽</p>
+        <p><strong>Оплаченная сумма заказов:</strong> {{ paid_total }} ₽</p>
         <a href="{% url 'users:profile_edit' %}" class="btn-edit">Редактировать</a>
       </div>
       <div class="profile-avatar">
@@ -224,12 +225,25 @@
               {% else %}
                 —
               {% endif %}
-            </td>
             <!-- 🔹 Кнопка "Подробнее" -->
             <td>
-              <a href="{% url 'restic:booking_detail' booking.pk %}" class="btn btn-sm" style="background-color: #470068; color: white;">Подробнее</a>
-            </td>
-          </tr>
+            <!-- Статус -->
+            {% if booking.is_cancelled %}
+              <span class="badge rounded-pill" style="background-color: #dc3545; color: white;">Отменена</span>
+            {% elif booking.payment and booking.payment.status == 'paid' %}
+              <span class="badge rounded-pill" style="background-color: #198754; color: white;">Оплачена</span>
+            {% elif booking.payment and booking.payment.status == 'check' %}
+              <span class="badge rounded-pill" style="background-color: #0dcaf0; color: black;">На проверке</span>
+            {% elif booking.payment and booking.payment.status == 'created' %}
+              <span class="badge rounded-pill" style="background-color: #0d6efd; color: white;">Создана</span>
+            {% else %}
+              <span class="badge rounded-pill bg-secondary">—</span>
+            {% endif %}
+
+            <!-- Ссылка "Подробнее" -->
+            <br>
+            <a href="{% url 'restic:booking_detail' booking.pk %}" style="font-size: 0.85rem; color: #470068; text-decoration: underline;">Подробнее</a>
+          </td>
         {% endfor %}
       </tbody>
       </table>

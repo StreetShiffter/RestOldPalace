@@ -385,51 +385,72 @@
     return true;
   }
 
-  function redrawMap() {
+function redrawMap() {
     document.getElementById('hall-bg').src = BASE_IMAGES[currentFilter];
     const map = document.getElementById('hall-map');
     map.querySelectorAll('.table-marker').forEach(el => el.remove());
 
     getCurrentTables().forEach(table => {
-      const isAvailable = isTableAvailable(
-        table.number,
-        document.getElementById('id_booking_date').value,
-        document.getElementById('id_booking_time').value,
-        parseInt(document.getElementById('id_duration_hours').value)
-      );
+        // Если стол НЕАКТИВЕН — всегда рисуем OFF и не даём выбрать
+        if (!table.is_active) {
+            const img = document.createElement('img');
+            img.src = table.capacity === 2
+                ? "{% static 'restic/images/tables/2_OFF.png' %}"
+                : "{% static 'restic/images/tables/4_OFF.png' %}";
+            img.style.position = 'absolute';
+            const w = table.capacity === 2 ? 75 : 128;
+            const h = table.capacity === 2 ? 33 : 118;
+            img.style.left = (table.x - w / 2) + 'px';
+            img.style.top = (table.y - h / 2) + 'px';
+            img.style.pointerEvents = 'none';
+            img.className = 'table-marker';
+            map.appendChild(img);
+            return;
+        }
 
-      if (selectedTables.has(table.number)) {
-        const img = document.createElement('img');
-        img.src = table.capacity === 2
-          ? "{% static 'restic/images/tables/2_ON.png' %}"
-          : "{% static 'restic/images/tables/4_ON.png' %}";
-        img.style.position = 'absolute';
-        const w = table.capacity === 2 ? 75 : 128;
-        const h = table.capacity === 2 ? 33 : 118;
-        img.style.left = (table.x - w / 2) + 'px';
-        img.style.top = (table.y - h / 2) + 'px';
-        img.style.pointerEvents = 'none';
-        img.className = 'table-marker';
-        map.appendChild(img);
-      } else if (!isAvailable) {
-        const img = document.createElement('img');
-        img.src = table.capacity === 2
-          ? "{% static 'restic/images/tables/2_OFF.png' %}"
-          : "{% static 'restic/images/tables/4_OFF.png' %}";
-        img.style.position = 'absolute';
-        const w = table.capacity === 2 ? 75 : 128;
-        const h = table.capacity === 2 ? 33 : 118;
-        img.style.left = (table.x - w / 2) + 'px';
-        img.style.top = (table.y - h / 2) + 'px';
-        img.style.pointerEvents = 'none';
-        img.className = 'table-marker';
-        map.appendChild(img);
-      }
+        // Активный стол — проверяем занятость
+        const isAvailable = isTableAvailable(
+            table.number,
+            document.getElementById('id_booking_date').value,
+            document.getElementById('id_booking_time').value,
+            parseInt(document.getElementById('id_duration_hours').value)
+        );
+
+        if (selectedTables.has(table.number)) {
+            // Выбран → ON
+            const img = document.createElement('img');
+            img.src = table.capacity === 2
+                ? "{% static 'restic/images/tables/2_ON.png' %}"
+                : "{% static 'restic/images/tables/4_ON.png' %}";
+            img.style.position = 'absolute';
+            const w = table.capacity === 2 ? 75 : 128;
+            const h = table.capacity === 2 ? 33 : 118;
+            img.style.left = (table.x - w / 2) + 'px';
+            img.style.top = (table.y - h / 2) + 'px';
+            img.style.pointerEvents = 'none';
+            img.className = 'table-marker';
+            map.appendChild(img);
+        } else if (!isAvailable) {
+            // Занят → OFF
+            const img = document.createElement('img');
+            img.src = table.capacity === 2
+                ? "{% static 'restic/images/tables/2_OFF.png' %}"
+                : "{% static 'restic/images/tables/4_OFF.png' %}";
+            img.style.position = 'absolute';
+            const w = table.capacity === 2 ? 75 : 128;
+            const h = table.capacity === 2 ? 33 : 118;
+            img.style.left = (table.x - w / 2) + 'px';
+            img.style.top = (table.y - h / 2) + 'px';
+            img.style.pointerEvents = 'none';
+            img.className = 'table-marker';
+            map.appendChild(img);
+        }
+        // Если активен и свободен — ничего не рисуем (только фон)
     });
 
     updateTotal();
     updateForm();
-  }
+}
 
   function updateTotal() {
     let total = 0;
@@ -447,42 +468,45 @@
   document.getElementById('id_booking_time').addEventListener('change', redrawMap);
   document.getElementById('id_duration_hours').addEventListener('change', redrawMap);
 
-  document.getElementById('hall-map').addEventListener('click', (e) => {
+document.getElementById('hall-map').addEventListener('click', (e) => {
     const rect = document.getElementById('hall-map').getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
     const tables = getCurrentTables();
     for (const t of tables) {
-      const w = t.capacity === 2 ? 75 : 128;
-      const h = t.capacity === 2 ? 33 : 118;
-      const left = t.x - w / 2;
-      const right = t.x + w / 2;
-      const top = t.y - h / 2;
-      const bottom = t.y + h / 2;
+        // Пропускаем неактивные столы — нельзя выбрать
+        if (!t.is_active) continue;
 
-      if (x >= left && x <= right && y >= top && y <= bottom) {
-        const isAvailable = isTableAvailable(
-          t.number,
-          document.getElementById('id_booking_date').value,
-          document.getElementById('id_booking_time').value,
-          parseInt(document.getElementById('id_duration_hours').value)
-        );
+        const w = t.capacity === 2 ? 75 : 128;
+        const h = t.capacity === 2 ? 33 : 118;
+        const left = t.x - w / 2;
+        const right = t.x + w / 2;
+        const top = t.y - h / 2;
+        const bottom = t.y + h / 2;
 
-        if (isAvailable) {
-          if (selectedTables.has(t.number)) {
-            selectedTables.delete(t.number);
-          } else {
-            selectedTables.add(t.number);
-          }
-          redrawMap();
-        } else {
-          alert(`Стол #${t.number} занят в выбранный период.`);
+        if (x >= left && x <= right && y >= top && y <= bottom) {
+            const isAvailable = isTableAvailable(
+                t.number,
+                document.getElementById('id_booking_date').value,
+                document.getElementById('id_booking_time').value,
+                parseInt(document.getElementById('id_duration_hours').value)
+            );
+
+            if (isAvailable) {
+                if (selectedTables.has(t.number)) {
+                    selectedTables.delete(t.number);
+                } else {
+                    selectedTables.add(t.number);
+                }
+                redrawMap();
+            } else {
+                alert(`Стол #${t.number} занят в выбранный период.`);
+            }
+            return;
         }
-        return;
-      }
     }
-  });
+});
 
   function setFilter(filter) {
     currentFilter = filter;

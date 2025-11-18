@@ -7,9 +7,11 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.views import LoginView
 from django.core.exceptions import PermissionDenied
 from django import forms
+from django.db.models import Sum
 from django.shortcuts import redirect, render, get_object_or_404
 from django.views.generic import CreateView, UpdateView, ListView
 from config.settings import EMAIL_HOST_USER
+from restic.models import Booking, Payment
 from .forms import CustomUserCreationForm, UserProfileForm, CustomAuthenticationForm
 from django.views import View
 from django.urls import reverse_lazy
@@ -88,9 +90,10 @@ def email_verification(request, token):
     return redirect("users:login")
 
 
-
-
 class CustomLoginView(LoginView):
+    '''Кастомное создание пользователя: проверяем скрытно, есть ли почта в БД.
+    Если есть, но не правильный пароль, то покажем кнопку "Забыли пароль?"
+    Если нет - обобщающая плашка неправильно что-то одно'''
     template_name = "users/login.html"
     success_url = reverse_lazy("users:profile")
     form_class = CustomAuthenticationForm
@@ -113,15 +116,26 @@ class CustomLoginView(LoginView):
 
 
 class UserProfileView(View):
-    """Вьюшка кабинета пользователя"""
+    '''Вьюшка просмотра профиля пользователя'''
 
     def get(self, request):
+        user = request.user
 
+        # Аннотируем сумму оплаченных бронирований
+        user.paid_total = Booking.objects.filter(
+            user=user,
+            is_cancelled=False,
+            payment__status='paid'
+        ).aggregate(total=Sum('total_amount'))['total'] or 0
 
-        # context = {
-        #
-        # }
-        return render(request, "users/profile.html")
+        bookings = Booking.objects.filter(user=user, is_cancelled=False)
+        total_amount = sum(b.total_amount for b in bookings)
+
+        return render(request, "users/profile.html", {
+            'bookings': bookings,
+            'total_amount': total_amount,        # все активные (неоплаченные в т.ч.)
+            'paid_total': user.paid_total,       # только оплаченные
+        })
 
 
 class UserProfileEditView(LoginRequiredMixin, UpdateView):
@@ -143,40 +157,6 @@ class UserProfileEditView(LoginRequiredMixin, UpdateView):
 
 ##########################################################################################
 # Администрирование
-class UserListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
-    """Просмотр списка пользователей + статистика по сообщениям, клиентам и рассылкам"""
-
-    model = User
-    template_name = "users/user_list.html"
-    context_object_name = "users"
-
-    # 🔽 Правильно: флаг должен быть атрибутом класса
-    raise_exception = True
-
-    def test_func(self):
-        """Разрешаем доступ только суперпользователю - для работы UserPassedTestMixin"""
-        perms_list = [
-            "mailservices.can_view_all_messages",
-            "mailservices.can_view_all_clients",
-            "mailservices.can_view_all_sendings",
-        ]
-        return self.request.user.has_perms(perms_list)
-
-    def get_queryset(self):
-        """Суперпользователь видит всех, остальные — пустой queryset (доступ запрещён через test_func)"""
-        return User.objects.all()  # будет вызвано только если test_func вернул True
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        # Теперь безопасно: мы знаем, что пользователь — суперпользователь
-        context["messages_list"] = Message.objects.all()
-        context["sendings_list"] = Sending.objects.all()
-        context["clients_list"] = Client.objects.all()
-        context["title"] = "Админ-панель: Все данные"
-
-        return context
-
 @login_required
 def delete_user(request, pk):
     '''Механизм удаления самого себя'''

@@ -11,6 +11,30 @@
             z-index: 1000;"><!-- Элемент на фоне растягивается и мешает шапке - это разграничивает(шаблон about)-->
     <img src="{% static 'restic/images/logo.png' %}" alt="Логотип" style="width: 450px; position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%);">
 
+     <!-- Иконки уведомлений — в правом верхнем углу -->
+    <div style="position: absolute; top: 20px; right: 20px; display: flex; flex-direction: column; gap: 10px;">
+        {% if user.is_staff and unread_feedback_count > 0 %}
+                        <!--admin:<app_label>_<model_name>_changelist-->
+            <a href="{% url 'admin:restic_feedback_changelist' %}"
+               title="У вас {{ unread_feedback_count }} новое(ых) сообщение(ий)"
+               style="display: inline-block;">
+                <img src="{% static 'restic/mail.png' %}"
+                     alt="Новые сообщения"
+                     style="height: 32px; width: auto;">
+            </a>
+        {% endif %}
+
+        {% if user.is_staff and new_pay_count > 0 %}
+            <a href="{% url 'admin:restic_payment_changelist' %}"
+               title="У вас {{ new_pay_count }} новая(ых) оплата(ы) на проверке"
+               style="display: inline-block;">
+                <img src="{% static 'restic/mail_pay.png' %}"
+                     alt="Новые оплаты"
+                     style="height: 32px; width: auto;">
+            </a>
+        {% endif %}
+    </div>
+
     <div style="position: absolute; bottom: 20px; display: flex; gap: 40px;">
         <a href="{% url 'restic:index' %}" class="nav-link-gold">Главная</a>
         <a href="{% url 'restic:about' %}" class="nav-link-gold">О ресторане</a>
@@ -21,5 +45,36 @@
                 Выход
             </button>
         </form>
+         <!-- Новые уведомления пользователю в боте -->
+         {% if user.is_authenticated and unread_payments_exists %}
+            <a href="https://t.me/grillhouse2025_bot"
+               onclick="markAllPaymentsAsRead(); return true;"
+               title="У вас новые уведомления о бронировании">
+              <img src="{% static 'restic/mail_user.png' %}"
+                   alt="Новые уведомления"
+                   style="height: 32px; width: auto; cursor: pointer;">
+            </a>
+          {% endif %}
     </div>
 </div>
+
+<script>
+function markAllPaymentsAsRead() {
+    fetch("{% url 'restic:mark_all_payments_read' %}", {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => {
+        if (response.ok) {
+            // Удаляем иконку
+            const icon = document.querySelector('a[href="https://t.me/grillhouse2025_bot"]');
+            if (icon) icon.remove();
+        }
+    })
+    .catch(err => console.error("Ошибка:", err));
+}
+</script>
+

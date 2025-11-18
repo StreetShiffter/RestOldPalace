@@ -2333,6 +2333,27 @@ files = [
 ]
 
 [[package]]
+name = "qrcode"
+version = "8.2"
+description = "QR Code image generator"
+optional = false
+python-versions = "<4.0,>=3.9"
+groups = ["main"]
+files = [
+    {file = "qrcode-8.2-py3-none-any.whl", hash = "sha256:16e64e0716c14960108e85d853062c9e8bba5ca8252c0b4d0231b9df4060ff4f"},
+    {file = "qrcode-8.2.tar.gz", hash = "sha256:35c3f2a4172b33136ab9f6b3ef1c00260dd2f66f858f24d88418a015f446506c"},
+]
+
+[package.dependencies]
+colorama = {version = "*", markers = "sys_platform == \"win32\""}
+pillow = {version = ">=9.1.0", optional = true, markers = "extra == \"pil\" or extra == \"all\""}
+
+[package.extras]
+all = ["pillow (>=9.1.0)", "pypng"]
+pil = ["pillow (>=9.1.0)"]
+png = ["pypng"]
+
+[[package]]
 name = "redis"
 version = "7.0.1"
 description = "Python client for Redis database and key-value store"
@@ -2822,4 +2843,4 @@ propcache = ">=0.2.1"
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11,<4.0"
-content-hash = "d7a3586edbb06b5259b0e67c3d91b18d588767ee75a81ef22603ab04cf791a1f"
+content-hash = "45e205d2d44acc1c75e4975154a7bc515cb1983db5c354d1758bdde56a19f794"

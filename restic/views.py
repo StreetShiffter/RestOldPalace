@@ -1,14 +1,18 @@
-import base64
+from django.contrib.auth.decorators import user_passes_test, login_required
+from django.http import JsonResponse
+
+from restic.tasks import cancel_unpaid_booking
+import os
+
+from django.db.models import Sum
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 from django.contrib import messages
-from django.contrib.auth.mixins import UserPassesTestMixin
-from django.core.files.base import ContentFile
+from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from django.core.mail import EmailMessage
 from django.shortcuts import redirect, get_object_or_404
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.utils import timezone
-from django.utils.timezone import now
 from django.views import View
 from django.views.generic import (
     TemplateView, CreateView, DetailView, UpdateView
@@ -17,8 +21,12 @@ from django.views.generic import (
 from config.settings import EMAIL_HOST_USER
 from restic.forms import BookingCreateForm, BookingUpdateForm
 from restic.mixins import ScreenshotHandlerMixin
-from restic.models import Feedback, Booking, Table
+from restic.models import Feedback, Booking, Table, Payment
 from users.services import send_telegram_message_with_photo
+
+# Генерация ссылки СБП с суммой
+from urllib.parse import urlencode
+
 
 
 class RestHomeView(TemplateView):
@@ -55,21 +63,32 @@ class RestAboutView(TemplateView):
 
 
 class RestBookingView(ScreenshotHandlerMixin, CreateView):
+    '''Страница бронирования и отображения динамических броней'''
     model = Booking
     form_class = BookingCreateForm
     template_name = 'restic/booking.html'
 
+    def get_success_url(self):
+        return reverse_lazy('restic:booking')
+
     def get_form_kwargs(self):
+        '''Если пользователь есть, то достаем его и отдаем в форму, что бы было понятно кто заполняет
+        для случая, когда форма должна быть предзаполнена данными текущего пользователя'''
         kwargs = super().get_form_kwargs()
         kwargs['user'] = self.request.user
         return kwargs
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
-        tables = Table.objects.filter(is_active=True)
+# Передаем наши столики в виде json для работы JS в шаблоне
+        tables = Table.objects.all()
         tables_data = [
-            {"number": t.number, "capacity": t.capacity, "x": t.x, "y": t.y, "price": float(t.price)}
+            {"number": t.number,
+             "capacity": t.capacity,
+             "x": t.x,
+             "y": t.y,
+             "price": float(t.price),
+             "is_active": t.is_active}
             for t in tables
         ]
         context['tables_json'] = json.dumps(tables_data)
@@ -77,7 +96,7 @@ class RestBookingView(ScreenshotHandlerMixin, CreateView):
         # Все бронирования для списка (только актуальные)
         context['bookings'] = Booking.objects.filter(is_cancelled=False).order_by('booking_date', 'booking_time')
 
-        # Все бронирования для JS
+        # Все бронирования для JS (получаем только активные)
         active_bookings = Booking.objects.filter(is_cancelled=False)
         bookings_data = []
         for booking in active_bookings:
@@ -85,7 +104,14 @@ class RestBookingView(ScreenshotHandlerMixin, CreateView):
             end = start + booking.booking_period
             bookings_data.append({
                 'id': booking.id,
+                #.values_list('number', flat=True)
+                # .values_list() — выбирает только указанные поля из базы (вместо целых объектов).
+                # 'number' — номера столов.
+                # flat=True — если запрашиваем одно поле, верни список значений, а не кортежи.
+                # вместо [(5,), (7,)] получим [5, 7]
                 'table_numbers': list(booking.tables.values_list('number', flat=True)),
+                # Готовые время и дата обворачиваем в .isoformat() в
+                # строку вида "2025-11-17T19:00:00", которую JS легко парсит.
                 'start_datetime': start.isoformat(),
                 'end_datetime': end.isoformat(),
             })
@@ -93,12 +119,33 @@ class RestBookingView(ScreenshotHandlerMixin, CreateView):
 
         return context
 
-    def get_success_url(self):
-        return reverse_lazy('restic:booking')
-
     def form_valid(self, form):
         response = super().form_valid(form)
         self.handle_screenshot(self.object)
+
+        # Обновляем total_order_amount пользователя
+        if self.request.user.is_authenticated:
+            total = Booking.objects.filter(
+                user=self.request.user,
+                is_cancelled=False
+            ).aggregate(
+                total=Sum('total_amount')
+            )['total'] or 0
+            self.request.user.total_order_amount = total
+            self.request.user.save(update_fields=['total_order_amount'])
+
+        payment, created = Payment.objects.get_or_create(
+            booking=self.object,
+            defaults={'amount': self.object.total_amount}
+        )
+
+        base_sbp_url = os.getenv("PAYMENT", "https://www.tinkoff.ru/rm/...")
+        params = urlencode({
+            'sum': str(self.object.total_amount),
+            'desc': f'Бронь №{self.object.id}'
+        })
+        payment.qr_url = f"{base_sbp_url}?{params}"
+        payment.save(update_fields=['qr_url'])
 
         user = self.request.user
         if user.is_authenticated and user.telegram_chat_id:
@@ -108,12 +155,13 @@ class RestBookingView(ScreenshotHandlerMixin, CreateView):
                 f"📅 Дата: {self.object.booking_date}\n"
                 f"🕕 Время: {self.object.booking_time}\n"
                 f"🪑 Столы: {tables_list}\n"
-                f"💰 Сумма: {self.object.total_amount} ₽"
+                f"💰 Сумма: {self.object.total_amount} ₽\n"
+                f"🔗 Ссылка на оплату: {base_sbp_url}"
             )
 
             photo_path = None
             if self.object.screenshot:
-                photo_path = self.object.screenshot.name  # путь относительно MEDIA_ROOT
+                photo_path = self.object.screenshot.name
 
             try:
                 send_telegram_message_with_photo(
@@ -124,6 +172,12 @@ class RestBookingView(ScreenshotHandlerMixin, CreateView):
             except Exception as e:
                 print(f"Ошибка отправки Telegram: {e}")
 
+        # Запуск отмены через 15 минут (celery beat)
+        cancel_unpaid_booking.apply_async(
+            args=[self.object.id],
+            countdown=15 * 60  # 15 минут
+        )
+
         return response
 
 
@@ -131,6 +185,33 @@ class BookingDetailView(DetailView):
     model = Booking
     template_name = 'restic/booking_detail.html'
     context_object_name = 'booking'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        booking = self.object
+
+        # Добавляем ссылку на оплату, если оплата не завершена
+        try:
+            payment = booking.payment
+            if payment.status == Payment.Status.CREATED:
+                from urllib.parse import urlencode
+                base_sbp_url = "https://www.tinkoff.ru/rm/r_kaOSbVmlxH.ztwoywaUzK/e5Em943815"
+                params = urlencode({
+                    'sum': str(booking.total_amount),
+                    'desc': f'Бронь №{booking.id}'
+                })
+                context['payment_url'] = f"{base_sbp_url}?{params}"
+        except Payment.DoesNotExist:
+            # Если оплата ещё не создана — тоже показываем ссылку
+            from urllib.parse import urlencode
+            base_sbp_url = "https://www.tinkoff.ru/rm/r_kaOSbVmlxH.ztwoywaUzK/e5Em943815"
+            params = urlencode({
+                'sum': str(booking.total_amount),
+                'desc': f'Бронь №{booking.id}'
+            })
+            context['payment_url'] = f"{base_sbp_url}?{params}"
+
+        return context
 
 
 class BookingUpdateView(UserPassesTestMixin, UpdateView):
@@ -216,8 +297,12 @@ class BookingCancelView(UserPassesTestMixin, View):
         messages.success(request, "Бронирование отменено.")
         return redirect('restic:booking_detail', pk=booking.pk)
 
-
-
+@login_required
+def mark_all_payments_read(request):
+    if request.method == "POST":
+        Payment.objects.filter(booking__user=request.user, is_read=False).update(is_read=True)
+        return JsonResponse({'status': 'ok'})
+    return JsonResponse({'status': 'error'}, status=400)
 
 class TestAboutView(TemplateView):
     '''ТЕСТОВАЯ СТРАНИЦА'''

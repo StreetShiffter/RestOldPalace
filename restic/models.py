@@ -18,6 +18,7 @@ class Table(models.Model):
 
 
 class Booking(models.Model):
+    '''Модель закакза столиков'''
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
@@ -52,6 +53,7 @@ class Booking(models.Model):
 
     is_cancelled = models.BooleanField(default=False, verbose_name="Отменено")
     cancelled_at = models.DateTimeField(null=True, blank=True, verbose_name="Время отмены")
+    is_sold = models.BooleanField(default=False)
 
     screenshot = models.ImageField(
         upload_to='bookings/screenshots/',
@@ -73,11 +75,57 @@ class Booking(models.Model):
             return f"📞 {self.phone_for_unauthorized} — {self.booking_date} в {self.booking_time}"
 
 
+class Payment(models.Model):
+    '''Модель оплаты бронирования'''
+    class Status(models.TextChoices):
+        '''Статус брони (вместо списка кортежей)'''
+        ABORT = 'abort', 'Отменен'
+        CREATED = 'created', 'Создан'
+        CHECK = 'check', 'На проверке'
+        PAID = 'paid', 'Оплачен'
+
+    booking = models.OneToOneField(Booking, on_delete=models.CASCADE)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    status = models.CharField(
+        max_length=20,
+        choices=Status.choices,
+        default=Status.CREATED,
+        verbose_name = "Статус"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    paid_at = models.DateTimeField(null=True, blank=True)
+
+
+    document = models.ImageField(
+        upload_to='document/',
+        null=True,
+        blank=True,
+        verbose_name="Чек / скриншот оплаты"
+    )
+
+    qr_url = models.URLField(blank=True, verbose_name="Ссылка на оплату")
+    is_read = models.BooleanField(default=False, verbose_name="Прочитано")
+
+    def save(self, *args, **kwargs):
+        # Если документ загружен, и статус ещё "created" → ставим "check"
+        if self.document and self.status == self.Status.CREATED:
+            self.status = self.Status.CHECK
+        super().save(*args, **kwargs)
+
+    class Meta:
+        verbose_name = "Оплата бронирования"
+        verbose_name_plural = "Оплаты бронирований"
+
+    def __str__(self):
+        return f"Оплата для брони №{self.booking.id}"
+
 
 class Feedback(models.Model):
+    '''Модель хранения обратной связи'''
     email = models.EmailField(verbose_name="Email")
     message = models.TextField(verbose_name="Сообщение")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата отправки")
+    is_read = models.BooleanField(default=False, verbose_name="Прочитано")
 
     class Meta:
         verbose_name = "Обратная связь"

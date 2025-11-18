@@ -11,7 +11,7 @@ from django.utils.timezone import now
 from .models import Booking, Table
 
 def get_opening_hours_py(booking_date):
-    """Возвращает (open_time, close_time) для заданной даты (date)"""
+    """Возвращает время работы ресторана для заданной даты (date)"""
     # weekday(): Mon=0, ..., Sun=6
     weekday = booking_date.weekday()
     if weekday == 6:  # Воскресенье
@@ -57,6 +57,9 @@ class BookingCreateForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
+        '''super().__init__() прогружает все поля родителя(ModelForm = Booking)'''
+        # kwargs.pop('user', None) — забирает user из словаря, чтобы он не попал в super().__init__()
+        # и передаем дальше заполненный аргумент в форму = форма знает кто заполняет
         self.user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
 
@@ -241,4 +244,3 @@ class BookingUpdateForm(BookingCreateForm):
                 print(">>> Нет данных для скриншота!")
 
         return booking
-

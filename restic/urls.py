@@ -2,6 +2,7 @@ from django.conf.urls.static import static
 from django.urls import path
 
 from config import settings
+from . import views
 from .apps import ResticConfig
 from .views import (RestHomeView,
                     RestAboutView,
@@ -20,6 +21,7 @@ urlpatterns = [
     path('booking/<int:pk>/', BookingDetailView.as_view(), name='booking_detail'),
     path('booking/<int:pk>/cancel/', BookingCancelView.as_view(), name='booking_cancel'),
     path('booking/<int:pk>/edit/', BookingUpdateView.as_view(), name='booking_edit'),
+    path('payments/mark-all-read/', views.mark_all_payments_read, name='mark_all_payments_read'),
     path("test/", TestAboutView.as_view(), name="test"),
 ]
 

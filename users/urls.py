@@ -7,7 +7,7 @@ from .views import (CustomLoginView,
                     UserRegisterView,
                     UserProfileView,
                     UserProfileEditView,
-                    email_verification, UserListView)
+                    email_verification)
 
 from django.contrib.auth.views import (
     LogoutView,
@@ -28,7 +28,6 @@ urlpatterns = [
     path('login/', CustomLoginView.as_view(), name="login"),
     path('logout/', LogoutView.as_view(), name="logout"),
     path('email-confirm/<str:token>/', email_verification, name="email-confirm"),
-    path('users/', UserListView.as_view(), name='user_list'),
     path("delete/<int:pk>/", views.delete_user, name="delete_user"),
 
     # Логика сброса пароля

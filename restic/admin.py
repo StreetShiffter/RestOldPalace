@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Table, Booking, Feedback
+from .models import Table, Booking, Feedback, Payment
 
 
 @admin.register(Table)
@@ -14,7 +14,7 @@ class TableAdmin(admin.ModelAdmin):
 class BookingAdmin(admin.ModelAdmin):
     list_display = (
         'user',
-        'tables_list',  # <-- Исправлено
+        'tables_list',
         'booking_date',
         'booking_time',
         'booking_period',
@@ -22,11 +22,13 @@ class BookingAdmin(admin.ModelAdmin):
         'screenshot',
         'created_at',
         'updated_at',
+        'is_cancelled',
+        'cancelled_at',
     )
     list_filter = ('created_at', 'booking_date')
     search_fields = ('user','booking_date',)
     filter_horizontal = ('tables',)  # удобный виджет для ManyToMany
-    readonly_fields = ('total_amount', 'created_at', 'updated_at')
+    readonly_fields = ('total_amount', 'created_at', 'updated_at','cancelled_at')
     fieldsets = (
         ('Клиент', {
             'fields': ('user',)
@@ -67,7 +69,20 @@ class BookingAdmin(admin.ModelAdmin):
             obj.save(update_fields=['total_amount'])
 
 
+@admin.action(description="Пометить как прочитанные")
+def mark_as_read(modeladmin, request, queryset):
+    queryset.update(is_read=True)
+
+
 @admin.register(Feedback)
 class FeedbackAdmin(admin.ModelAdmin):
-    list_display = ('email', 'message', 'created_at')  # <-- Исправлено
+    list_display = ('email', 'message', 'created_at')
     readonly_fields = ('created_at',)
+    actions = [mark_as_read]
+
+
+@admin.register(Payment)
+class PaymentAdmin(admin.ModelAdmin):
+    list_display = ('status', 'booking', 'amount', 'document')
+    readonly_fields = ('created_at',)
+    actions = [mark_as_read]

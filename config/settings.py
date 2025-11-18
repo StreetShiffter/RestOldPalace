@@ -1,6 +1,7 @@
 import os
 from datetime import timedelta
 
+from celery.schedules import crontab
 from dotenv import load_dotenv
 
 from pathlib import Path
@@ -30,7 +31,6 @@ INSTALLED_APPS = [
     "users",
     "django_filters",
     "drf_spectacular",
-    "django_celery_beat",
     'django_cleanup.apps.CleanupConfig',
     # "corsheaders",
 ]
@@ -88,6 +88,9 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "restic.context_processors.unread_feedback",
+                "restic.context_processors.new_payment",
+                'restic.context_processors.user_notifications',
             ],
         },
     },
@@ -246,7 +249,7 @@ LOGGING = {
         "level": "INFO",
     },
     "loggers": {
-        "mailservices": {  # ← имя вашего приложения
+        "restic": {  # ← имя вашего приложения
             "handlers": ["console"],
             "level": "INFO",
             "propagate": False,
@@ -258,12 +261,12 @@ LOGIN_REDIRECT_URL = 'users:profile'# Редирект после логиров
 LOGOUT_REDIRECT_URL = 'restic:index'# Редирект после выхода(имя приложения и имя в url )
 LOGIN_URL = 'users:register'# Редирект на страницу регистрации, если вьюшка защищена миксином LoginRequiredMixin
 #
-# CACHES = {
-#     'default': {
-#         'BACKEND': 'django.core.cache.backends.redis.RedisCache',
-#         'LOCATION': os.getenv('REDIS_URL'),
-#     }
-# }
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+        'LOCATION': os.getenv('REDIS_URL'),
+    }
+}
 
 
 # Настройки Celery
@@ -281,11 +284,11 @@ CELERY_RESULT_SERIALIZER = "json"
 CELERY_TIMEZONE = TIME_ZONE
 #
 # # Настройки Celery Beat (планировщик)
-# CELERY_BEAT_SCHEDULE = {
-#     'deactivate-inactive-users-daily': {
-#         'task': 'educations.tasks.deactivate_inactive_users',
-#         'schedule': crontab(hour=2, minute=0),  # каждый день в 02:00
-#     },
-# }
+CELERY_BEAT_SCHEDULE = {
+    'cancel-expired-bookings': {
+        'task': 'restic.tasks.cancel_expired_bookings',
+        'schedule': 300.0,  # каждые 5 минут
+    },
+}
 TELEGRAM_URL = "https://api.telegram.org/bot"
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
