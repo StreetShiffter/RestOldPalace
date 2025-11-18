@@ -70,7 +70,7 @@ class Booking(models.Model):
     class Meta:
         verbose_name = "Бронирование"
         verbose_name_plural = "Бронирования"
-        permissions = ['view_all_bookings', 'Может просматривать все брони']
+        permissions = [('view_all_bookings', 'Может просматривать все брони'),]
 
     def __str__(self):
         if self.user:
