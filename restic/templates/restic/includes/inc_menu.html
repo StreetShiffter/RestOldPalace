@@ -1,5 +1,9 @@
 {% load static %}
-<link rel="stylesheet" href="{% static 'css/menu_color.css' %}">
+{% block extra_css %}
+<style>
+    <link rel="stylesheet" href="{% static 'css/menu_color.css' %}">
+</style>
+{% endblock %}
 
 <div style="background: url('{% static 'restic/images/header-bg.jpg' %}') center/cover;
             height: 350px;
