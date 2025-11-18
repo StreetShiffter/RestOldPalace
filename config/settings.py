@@ -30,6 +30,7 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     "users",
     "django_filters",
+    'django_celery_beat',
     "drf_spectacular",
     "django_cleanup.apps.CleanupConfig",
     # "corsheaders",

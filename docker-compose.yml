@@ -15,8 +15,8 @@ services:
     # тома для сохранения данных вне контейнера
     volumes:
       - .:/RestOldPalace
-      - static_volume:/HabbitTracker/staticfiles
-      - media_volume:/HabbitTracker/media
+      - static_volume:/RestOldPalace/staticfiles
+      - media_volume:/RestOldPalace/media
     ports:
       - "8000:8000"
     # условия запуска(не будет работать, пока не запустятся зависимости)
