@@ -1,16 +1,16 @@
 from django.core.management.base import BaseCommand
-from django.contrib.auth.models import User, Group, Permission
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group, Permission
 from django.contrib.contenttypes.models import ContentType
 from restic.models import Booking
-
 import os
 
+User = get_user_model()
 
 class Command(BaseCommand):
-    help = "Создаёт суперпользователя и группу 'Moderators' при первом запуске"
+    help = "Создаёт суперпользователя и группу 'Moderators'"
 
     def handle(self, *args, **options):
-        # Создаём суперпользователя, если не существует
         admin_email = os.getenv("DJANGO_SUPERUSER_EMAIL", "admin@example.com")
         admin_password = os.getenv("DJANGO_SUPERUSER_PASSWORD", "admin")
 
@@ -19,13 +19,10 @@ class Command(BaseCommand):
                 email=admin_email,
                 password=admin_password,
             )
-            self.stdout.write(
-                self.style.SUCCESS(f"Суперпользователь {admin_email} создан")
-            )
+            self.stdout.write(self.style.SUCCESS(f"Суперпользователь {admin_email} создан"))
         else:
             self.stdout.write(f"Суперпользователь {admin_email} уже существует")
 
-        # Создаём группу "Moderators", если не существует
         group, created = Group.objects.get_or_create(name="Moderators")
         if created:
             self.stdout.write(self.style.SUCCESS("Группа 'Moderators' создана"))
