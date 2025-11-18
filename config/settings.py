@@ -13,7 +13,7 @@ load_dotenv(override=True)  # ИСПОЛЬЗОВАТЬ ДАННЫЕ ИЗ ПЕР�
 # SECURITY WARNING: django app secret!
 SECRET_KEY = os.getenv("SECRET_KEY")
 DEBUG = True if os.getenv("DEBUG") == "True" else False
-ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS")
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "127.0.0.1").split(",")
 
 
 # Application definition
@@ -164,6 +164,11 @@ STATIC_ROOT = BASE_DIR / "staticfiles"  # сюда collectstatic будет ко
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+
+# Максимальный размер загружаемого файла (в байтах)
+# 10 МБ = 10 * 1024 * 1024 = 10485760
+FILE_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10 МБ
+DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10 МБ
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
