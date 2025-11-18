@@ -154,6 +154,11 @@ USE_TZ = True
 STATIC_URL = "static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]  # исходники статики
 
+STATICFILES_FINDERS = [
+    "django.contrib.staticfiles.finders.FileSystemFinder",
+    "django.contrib.staticfiles.finders.AppDirectoriesFinder",  # ← это ищет static/ в приложениях
+]
+
 # Путь в файловой системе, куда collectstatic будет копировать все файлы (как в VOLUMES)
 STATIC_ROOT = BASE_DIR / "staticfiles"  # сюда collectstatic будет копировать всё
 
