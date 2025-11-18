@@ -2,8 +2,8 @@ services:
 
 # ПРОПИСЫВАЕМ DJANGO приложение
   web:
-    #build: . # Для сборка через github(поменяйте коммент на image, если надо с dockerhub)
-    image: ${DOCKER_IMAGE}:${IMAGE_TAG}
+    build: . # Для сборка через github(поменяйте коммент на image, если надо с dockerhub)
+#    image: ${DOCKER_IMAGE}:${IMAGE_TAG}
 #Подгрузка статики, запуск миграцйй и запуск вебсервера для приложения
     command: sh -c "
       python manage.py migrate --noinput &&
