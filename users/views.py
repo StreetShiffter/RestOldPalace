@@ -1,17 +1,14 @@
 import secrets
 from django.contrib import messages
-from django.contrib.auth import logout, get_user_model
+from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.forms import AuthenticationForm
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView
-from django.core.exceptions import PermissionDenied
-from django import forms
 from django.db.models import Sum
 from django.shortcuts import redirect, render, get_object_or_404
-from django.views.generic import CreateView, UpdateView, ListView
+from django.views.generic import CreateView, UpdateView
 from config.settings import EMAIL_HOST_USER
-from restic.models import Booking, Payment
+from restic.models import Booking
 from .forms import CustomUserCreationForm, UserProfileForm, CustomAuthenticationForm
 from django.views import View
 from django.urls import reverse_lazy
@@ -41,7 +38,7 @@ class UserRegisterView(CreateView):
         # === Отправка Telegram =============
         if user.telegram_chat_id:
             try:
-                message = "🎉 Добро пожаловать в ресторан Grill House! Я ваш помощник по бронированию и оплате столиков."
+                message = "🎉 Добро пожаловать в ресторан Grill House! Я ваш помощник по бронированию и оплате мест."
                 send_telegram_message(chat_id=user.telegram_chat_id, message=message)
             except Exception as e:
                 print(f"Ошибка отправки Telegram: {e}")
@@ -51,11 +48,14 @@ class UserRegisterView(CreateView):
         url = f"http://{host}/users/email-confirm/{token}/"
 
         # Рендерим HTML-письмо
-        html_message = render_to_string('users/email_confirmation.html', {
-            'protocol': 'http',
-            'domain': host,
-            'url': url,
-        })
+        html_message = render_to_string(
+            "users/email_confirmation.html",
+            {
+                "protocol": "http",
+                "domain": host,
+                "url": url,
+            },
+        )
 
         # Текстовая версия (на случай, если клиент не поддерживает HTML)
         plain_message = strip_tags(html_message)
@@ -91,20 +91,23 @@ def email_verification(request, token):
 
 
 class CustomLoginView(LoginView):
-    '''Кастомное создание пользователя: проверяем скрытно, есть ли почта в БД.
+    """Кастомное создание пользователя: проверяем скрытно, есть ли почта в БД.
     Если есть, но не правильный пароль, то покажем кнопку "Забыли пароль?"
-    Если нет - обобщающая плашка неправильно что-то одно'''
+    Если нет - обобщающая плашка неправильно что-то одно"""
+
     template_name = "users/login.html"
     success_url = reverse_lazy("users:profile")
     form_class = CustomAuthenticationForm
 
     def form_invalid(self, form):
         # Передаём в контекст, существует ли email — для показа кнопки "Забыли пароль?"
-        username = form.data.get('username')
-        email_exists = User.objects.filter(email=username).exists() if username else False
+        username = form.data.get("username")
+        email_exists = (
+            User.objects.filter(email=username).exists() if username else False
+        )
 
         context = self.get_context_data(form=form)
-        context['email_exists'] = email_exists
+        context["email_exists"] = email_exists
         return self.render_to_response(context)
 
     def form_valid(self, form):
@@ -115,31 +118,36 @@ class CustomLoginView(LoginView):
         return super().form_valid(form)
 
 
-class UserProfileView(View):
-    '''Вьюшка просмотра профиля пользователя'''
+class UserProfileView(LoginRequiredMixin, View):
+    """Вьюшка просмотра профиля пользователя"""
 
     def get(self, request):
         user = request.user
 
         # Аннотируем сумму оплаченных бронирований
-        user.paid_total = Booking.objects.filter(
-            user=user,
-            is_cancelled=False,
-            payment__status='paid'
-        ).aggregate(total=Sum('total_amount'))['total'] or 0
+        user.paid_total = (
+            Booking.objects.filter(
+                user=user, is_cancelled=False, payment__status="paid"
+            ).aggregate(total=Sum("total_amount"))["total"]
+            or 0
+        )
 
         bookings = Booking.objects.filter(user=user, is_cancelled=False)
         total_amount = sum(b.total_amount for b in bookings)
 
-        return render(request, "users/profile.html", {
-            'bookings': bookings,
-            'total_amount': total_amount,        # все активные (неоплаченные в т.ч.)
-            'paid_total': user.paid_total,       # только оплаченные
-        })
+        return render(
+            request,
+            "users/profile.html",
+            {
+                "bookings": bookings,
+                "total_amount": total_amount,  # все активные (неоплаченные в т.ч.)
+                "paid_total": user.paid_total,  # только оплаченные
+            },
+        )
 
 
 class UserProfileEditView(LoginRequiredMixin, UpdateView):
-    """Вьюшка редактирования кабинета пользователя(LoginRequiredMixi защищает от неавторизованности)"""
+    """Вьюшка редактирования кабинета пользователя(LoginRequiredMixin защищает от неавторизованности)"""
 
     model = User
     form_class = UserProfileForm
@@ -151,7 +159,9 @@ class UserProfileEditView(LoginRequiredMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['bookings'] = self.request.user.bookings.all()  # или как у вас называется related_name
+        context["bookings"] = (
+            self.request.user.bookings.all()
+        )  # или как у вас называется related_name
         return context
 
 
@@ -159,7 +169,7 @@ class UserProfileEditView(LoginRequiredMixin, UpdateView):
 # Администрирование
 @login_required
 def delete_user(request, pk):
-    '''Механизм удаления самого себя'''
+    """Механизм удаления самого себя"""
     if request.user.pk != pk:
         messages.error(request, "Вы можете удалить только свой аккаунт.")
         return redirect("restic:index")
@@ -173,4 +183,3 @@ def delete_user(request, pk):
 
     messages.success(request, f"Ваш аккаунт {username} был успешно удалён.")
     return redirect("users:login")
-

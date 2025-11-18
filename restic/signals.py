@@ -5,9 +5,10 @@ from django.utils import timezone
 from .models import Payment
 from users.services import send_telegram_message
 
+
 @receiver(post_save, sender=Payment)
 def notify_user_on_payment_status_change(sender, instance, created, **kwargs):
-    '''Отслеживаем статуса заказа в админке'''
+    """Отслеживаем статуса заказа в админке"""
     if created:
         return  # при создании — не уведомляем
 
@@ -17,7 +18,7 @@ def notify_user_on_payment_status_change(sender, instance, created, **kwargs):
         return
 
     chat_id = user.telegram_chat_id
-    if instance.status == 'paid':
+    if instance.status == "paid":
         message = f"🎉 Бронь №{booking.id} подтверждена! Оплата прошла успешно."
         send_telegram_message(chat_id, message)
     elif instance.status == Payment.Status.ABORT:
@@ -27,4 +28,4 @@ def notify_user_on_payment_status_change(sender, instance, created, **kwargs):
         if not booking.is_cancelled:
             booking.is_cancelled = True
             booking.cancelled_at = timezone.now()
-            booking.save(update_fields=['is_cancelled', 'cancelled_at'])
+            booking.save(update_fields=["is_cancelled", "cancelled_at"])

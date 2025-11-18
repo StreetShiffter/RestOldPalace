@@ -10,7 +10,15 @@ class UserRegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ["email", "first_name", "last_name", "password", "city", "phone", "telegram_chat_id"]
+        fields = [
+            "email",
+            "first_name",
+            "last_name",
+            "password",
+            "city",
+            "phone",
+            "telegram_chat_id",
+        ]
 
     def create(self, validated_data):
         """Сохраняем пользователя и хэшируем пароль для БД"""

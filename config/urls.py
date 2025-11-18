@@ -7,7 +7,6 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("", include("restic.urls")),
     path("users/", include("users.urls")),
-
 ]
 
 if settings.DEBUG:

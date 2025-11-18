@@ -15,14 +15,15 @@ class CustomUserCreationForm(UserCreationForm):
 
     class Meta(UserCreationForm.Meta):
         model = User
-        fields = ["first_name",
-                  "last_name",
-                  "email",
-                  "phone",
-                  "image",
-                  "city",
-                  "telegram_chat_id",
-                  ]
+        fields = [
+            "first_name",
+            "last_name",
+            "email",
+            "phone",
+            "image",
+            "city",
+            "telegram_chat_id",
+        ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -56,7 +57,7 @@ class CustomUserCreationForm(UserCreationForm):
         )
 
     def clean(self):
-        '''Используется для кросс-валидации нескольких полей'''
+        """Используется для кросс-валидации нескольких полей"""
         pass
 
     def clean_phone(self):
@@ -90,8 +91,8 @@ class CustomUserCreationForm(UserCreationForm):
         # return email
 
     def save(self, commit=True):
-        '''Метод сохранения username (если в модели нет поля, то нужно использовать метод для записи
-        т.к. AbstractUser всегда должен иметь username)'''
+        """Метод сохранения username (если в модели нет поля, то нужно использовать метод для записи
+        т.к. AbstractUser всегда должен иметь username)"""
         user = super().save(commit=False)
         # Генерируем уникальный username из email или UUID
         if not user.username:
@@ -109,8 +110,10 @@ class CustomUserCreationForm(UserCreationForm):
 
 class CustomAuthenticationForm(AuthenticationForm):
     username = forms.EmailField(
-        widget=forms.EmailInput(attrs={"class": "form-control", "placeholder": "Ваш email"}),
-        label="Email"
+        widget=forms.EmailInput(
+            attrs={"class": "form-control", "placeholder": "Ваш email"}
+        ),
+        label="Email",
     )
 
     def clean_username(self):
@@ -123,13 +126,16 @@ class CustomAuthenticationForm(AuthenticationForm):
     def confirm_login_allowed(self, user):
         # Если пользователь не активен (не подтвердил email)
         if not user.is_active:
-            raise forms.ValidationError("Пожалуйста, подтвердите email, прежде чем войти.")
+            raise forms.ValidationError(
+                "Пожалуйста, подтвердите email, прежде чем войти."
+            )
         return super().confirm_login_allowed(user)
 
 
 class ImageWidget(ClearableFileInput):
-    '''Специальный виджет для отображения фото в профиле'''
-    template_name = 'users/widgets/image_widget.html'
+    """Специальный виджет для отображения фото в профиле"""
+
+    template_name = "users/widgets/image_widget.html"
 
 
 class UserProfileForm(forms.ModelForm):
@@ -137,17 +143,18 @@ class UserProfileForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ["first_name",
-                  "last_name",
-                  "email",
-                  "phone",
-                  "image",
-                  "city",
-                  "telegram_chat_id",
-                  ]
+        fields = [
+            "first_name",
+            "last_name",
+            "email",
+            "phone",
+            "image",
+            "city",
+            "telegram_chat_id",
+        ]
         # Кастомный виджет для фото в профиле редактирования
         widgets = {
-            'image': ImageWidget(),
+            "image": ImageWidget(),
         }
 
     def __init__(self, *args, **kwargs):

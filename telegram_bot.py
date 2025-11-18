@@ -11,14 +11,14 @@ from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import BotCommand, ContentType, KeyboardButton, ReplyKeyboardMarkup
 from asgiref.sync import sync_to_async
 from dotenv import load_dotenv
+from restic.models import Booking, Payment
+from users.models import User
 
 # --- Django setup ---
 BASE_DIR = Path(__file__).resolve().parent.parent
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
 django.setup()
 
-from restic.models import Booking, Payment
-from users.models import User
 
 # --- Config ---
 load_dotenv(override=True)
@@ -41,7 +41,9 @@ def get_user_by_telegram_id(chat_id):
 
 @sync_to_async
 def get_bookings_list_text(user):
-    bookings = Booking.objects.filter(user=user, is_cancelled=False).order_by("-booking_date")
+    bookings = Booking.objects.filter(user=user, is_cancelled=False).order_by(
+        "-booking_date"
+    )
     if not bookings:
         return "У вас нет активных бронирований."
     text = "Ваши бронирования:\n\n"
@@ -54,7 +56,9 @@ def get_bookings_list_text(user):
 @sync_to_async
 def get_booking_detail_data(booking_id, user):
     try:
-        b = Booking.objects.select_related("payment").get(id=booking_id, user=user, is_cancelled=False)
+        b = Booking.objects.select_related("payment").get(
+            id=booking_id, user=user, is_cancelled=False
+        )
         tables = ", ".join([f"#{t.number}" for t in b.tables.all()])
         text = (
             f"🎫 Бронь №{b.id}\n"
@@ -65,7 +69,9 @@ def get_booking_detail_data(booking_id, user):
             f"⏳ Длительность: {b.booking_period}"
         )
         photo_path = b.screenshot.path if b.screenshot else None
-        payment_url = b.payment.qr_url if hasattr(b, "payment") and b.payment.qr_url else None
+        payment_url = (
+            b.payment.qr_url if hasattr(b, "payment") and b.payment.qr_url else None
+        )
         return text, photo_path, payment_url
     except Booking.DoesNotExist:
         return None, None, None
@@ -79,8 +85,11 @@ def booking_exists(booking_id, user):
 @sync_to_async
 def save_payment_receipt(booking_id, user, file_bytes):
     booking = Booking.objects.get(id=booking_id, user=user, is_cancelled=False)
-    payment, _ = Payment.objects.get_or_create(booking=booking, defaults={"amount": booking.total_amount})
+    payment, _ = Payment.objects.get_or_create(
+        booking=booking, defaults={"amount": booking.total_amount}
+    )
     from django.core.files.base import ContentFile
+
     filename = f"telegram_receipt_{booking_id}_{user.id}.jpg"
     payment.document.save(filename, ContentFile(file_bytes), save=True)
     if payment.status == Payment.Status.CREATED:
@@ -132,7 +141,9 @@ async def restart_bot(message: types.Message):
 async def my_bookings(message: types.Message):
     user = await get_user_by_telegram_id(message.from_user.id)
     if not user:
-        await message.answer("Вы не привязаны к учётной записи. Укажите Telegram ID в профиле на сайте.")
+        await message.answer(
+            "Вы не привязаны к учётной записи. Укажите Telegram ID в профиле на сайте."
+        )
         return
     text = await get_bookings_list_text(user)
     await message.answer(text, parse_mode="HTML")
@@ -140,16 +151,22 @@ async def my_bookings(message: types.Message):
 
 @dp.message(lambda msg: msg.text == "Показать бронь по номеру")
 async def show_by_id_help(message: types.Message):
-    await message.answer("Отправьте номер брони в формате: <code>#3</code>", parse_mode="HTML")
+    await message.answer(
+        "Отправьте номер брони в формате: <code>#3</code>", parse_mode="HTML"
+    )
 
 
 @dp.message(lambda msg: msg.text == "Прикрепить чек к брони")
 async def start_payment_upload(message: types.Message, state: FSMContext):
     user = await get_user_by_telegram_id(message.from_user.id)
     if not user:
-        await message.answer("Вы не привязаны к учётной записи. Укажите Telegram ID в профиле на сайте.")
+        await message.answer(
+            "Вы не привязаны к учётной записи. Укажите Telegram ID в профиле на сайте."
+        )
         return
-    await message.answer("Отправьте номер брони в формате: <code>#3</code>", parse_mode="HTML")
+    await message.answer(
+        "Отправьте номер брони в формате: <code>#3</code>", parse_mode="HTML"
+    )
     await state.set_state(PaymentStates.waiting_for_booking_id)
 
 
@@ -162,7 +179,9 @@ async def receive_booking_id(message: types.Message, state: FSMContext):
 
     match = re.match(r"^#(\d+)$", message.text.strip())
     if not match:
-        await message.answer("Неверный формат. Пример: <code>#3</code>", parse_mode="HTML")
+        await message.answer(
+            "Неверный формат. Пример: <code>#3</code>", parse_mode="HTML"
+        )
         return
 
     booking_id = int(match.group(1))
@@ -178,7 +197,7 @@ async def receive_booking_id(message: types.Message, state: FSMContext):
         await message.answer(
             "Теперь отправьте <b>фото чека об оплате</b>.\n"
             "Чтобы отменить — напишите: <code>отмена</code>",
-            parse_mode="HTML"
+            parse_mode="HTML",
         )
         await state.set_state(PaymentStates.waiting_for_payment_receipt)
     else:
@@ -213,7 +232,9 @@ async def handle_payment_step(message: types.Message, state: FSMContext):
             file_bytes = file_obj.getvalue()
 
             await save_payment_receipt(booking_id, user, file_bytes)
-            await message.answer("✅ Чек получен! Бронь отправлена на проверку администратору.")
+            await message.answer(
+                "✅ Чек получен! Бронь отправлена на проверку администратору."
+            )
         except Booking.DoesNotExist:
             await message.answer("Бронь больше не активна.")
         except Exception as e:
@@ -222,7 +243,11 @@ async def handle_payment_step(message: types.Message, state: FSMContext):
         finally:
             await state.clear()
     else:
-        await message.answer("Пожалуйста, отправьте <b>фото чека</b> или напишите <code>отмена</code>.", parse_mode="HTML")
+        await message.answer(
+            "Пожалуйста, отправьте <b>фото чека</b> или напишите <code>отмена</code>.",
+            parse_mode="HTML",
+        )
+
 
 # --- Обработка #123 вне FSM ---
 @dp.message()
@@ -246,7 +271,7 @@ async def handle_booking_number(message: types.Message):
                 chat_id=message.chat.id,
                 photo=types.FSInputFile(photo_path),
                 caption=detail_text,
-                parse_mode="HTML"
+                parse_mode="HTML",
             )
         else:
             await message.answer(detail_text, parse_mode="HTML")
@@ -256,10 +281,12 @@ async def handle_booking_number(message: types.Message):
 
 # --- Commands ---
 async def set_bot_commands(bot: Bot):
-    await bot.set_my_commands([
-        BotCommand(command="/start", description="Приветствие"),
-        BotCommand(command="/my_bookings", description="Мои бронирования"),
-    ])
+    await bot.set_my_commands(
+        [
+            BotCommand(command="/start", description="Приветствие"),
+            BotCommand(command="/my_bookings", description="Мои бронирования"),
+        ]
+    )
 
 
 # --- Main ---

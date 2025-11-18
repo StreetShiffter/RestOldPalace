@@ -66,10 +66,7 @@ class User(AbstractUser):
     )
 
     total_order_amount = models.DecimalField(
-        max_digits=12,
-        decimal_places=2,
-        default=0,
-        verbose_name="Общая сумма заказов"
+        max_digits=12, decimal_places=2, default=0, verbose_name="Общая сумма заказов"
     )
 
     is_active = models.BooleanField(default=True, verbose_name="Активен")

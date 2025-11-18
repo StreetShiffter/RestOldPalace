@@ -20,17 +20,13 @@ def send_telegram_message_with_photo(chat_id, message, photo_path=None):
 
     if photo_path and default_storage.exists(photo_path):
         # Отправка фото с подписью
-        with default_storage.open(photo_path, 'rb') as photo_file:
-            files = {'photo': photo_file}
-            data = {
-                'chat_id': chat_id,
-                'caption': message,
-                'parse_mode': 'HTML'
-            }
-            response = requests.post(url + 'sendPhoto', data=data, files=files)
+        with default_storage.open(photo_path, "rb") as photo_file:
+            files = {"photo": photo_file}
+            data = {"chat_id": chat_id, "caption": message, "parse_mode": "HTML"}
+            response = requests.post(url + "sendPhoto", data=data, files=files)
     else:
         # Обычное текстовое сообщение
-        data = {'chat_id': chat_id, 'text': message, 'parse_mode': 'HTML'}
-        response = requests.post(url + 'sendMessage', data=data)
+        data = {"chat_id": chat_id, "text": message, "parse_mode": "HTML"}
+        response = requests.post(url + "sendMessage", data=data)
 
     return response

@@ -5,9 +5,10 @@ from django import template
 
 register = template.Library()
 
+
 @register.simple_tag
 def qr_from_text(text, size=200):
-    '''Отдельный генератор QR кода на оплату в шаблоне'''
+    """Отдельный генератор QR кода на оплату в шаблоне"""
     qr = qrcode.QRCode(box_size=10, border=4)
     qr.add_data(text)
     qr.make(fit=True)

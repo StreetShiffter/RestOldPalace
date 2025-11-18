@@ -1,7 +1,7 @@
 import os
 from datetime import timedelta
 
-from celery.schedules import crontab
+
 from dotenv import load_dotenv
 
 from pathlib import Path
@@ -31,7 +31,7 @@ INSTALLED_APPS = [
     "users",
     "django_filters",
     "drf_spectacular",
-    'django_cleanup.apps.CleanupConfig',
+    "django_cleanup.apps.CleanupConfig",
     # "corsheaders",
 ]
 
@@ -90,7 +90,7 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "restic.context_processors.unread_feedback",
                 "restic.context_processors.new_payment",
-                'restic.context_processors.user_notifications',
+                "restic.context_processors.user_notifications",
             ],
         },
     },
@@ -257,14 +257,18 @@ LOGGING = {
     },
 }
 #
-LOGIN_REDIRECT_URL = 'users:profile'# Редирект после логирования(имя приложения и имя в url)
-LOGOUT_REDIRECT_URL = 'restic:index'# Редирект после выхода(имя приложения и имя в url )
-LOGIN_URL = 'users:register'# Редирект на страницу регистрации, если вьюшка защищена миксином LoginRequiredMixin
+LOGIN_REDIRECT_URL = (
+    "users:profile"  # Редирект после логирования(имя приложения и имя в url)
+)
+LOGOUT_REDIRECT_URL = (
+    "restic:index"  # Редирект после выхода(имя приложения и имя в url )
+)
+LOGIN_URL = "users:register"  # Редирект на страницу регистрации, если вьюшка защищена миксином LoginRequiredMixin
 #
 CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
-        'LOCATION': os.getenv('REDIS_URL'),
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": os.getenv("REDIS_URL"),
     }
 }
 
@@ -285,9 +289,9 @@ CELERY_TIMEZONE = TIME_ZONE
 #
 # # Настройки Celery Beat (планировщик)
 CELERY_BEAT_SCHEDULE = {
-    'cancel-expired-bookings': {
-        'task': 'restic.tasks.cancel_expired_bookings',
-        'schedule': 300.0,  # каждые 5 минут
+    "cancel-expired-bookings": {
+        "task": "restic.tasks.cancel_expired_bookings",
+        "schedule": 300.0,  # каждые 5 минут
     },
 }
 TELEGRAM_URL = "https://api.telegram.org/bot"

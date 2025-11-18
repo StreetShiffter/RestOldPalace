@@ -5,17 +5,19 @@ from django.utils import timezone
 from .models import Booking
 from users.services import send_telegram_message
 
+
 @shared_task
 def cancel_unpaid_booking(booking_id):
+    """Механизм отмены заказа, если не оплатил в течении 15 минут (RestBookingView)"""
     try:
         booking = Booking.objects.get(id=booking_id, is_cancelled=False)
-        payment = getattr(booking, 'payment', None)
+        payment = getattr(booking, "payment", None)
 
         # Если оплата так и не подтверждена
-        if not payment or payment.status not in ['paid', 'check']:
+        if not payment or payment.status not in ["paid", "check"]:
             booking.is_cancelled = True
             booking.cancelled_at = timezone.now()
-            booking.save(update_fields=['is_cancelled', 'cancelled_at'])
+            booking.save(update_fields=["is_cancelled", "cancelled_at"])
 
             # Уведомление в Telegram
             if booking.user and booking.user.telegram_chat_id:
@@ -38,17 +40,22 @@ def cancel_expired_bookings():
         is_sold=False,
         booking_date__lte=now.date(),
     )
-
+    # Отслеживание в celery
     count = 0
     for booking in expired:
         start_time = timezone.make_aware(
             datetime.combine(booking.booking_date, booking.booking_time),
-            timezone.get_default_timezone()
+            timezone.get_default_timezone(),
         )
         if start_time <= threshold:
             booking.is_cancelled = True
             booking.cancelled_at = now
-            booking.save(update_fields=['is_cancelled', 'cancelled_at'])
+            booking.save(update_fields=["is_cancelled", "cancelled_at"])
             count += 1
+
+        # Уведомление в Telegram
+        if booking.user and booking.user.telegram_chat_id:
+            message = f"Бронь №{booking.id} завершена. Спасибо, что посетил нас!"
+            send_telegram_message(booking.user.telegram_chat_id, message)
 
     print(f"Отменено {count} просроченных броней.")
