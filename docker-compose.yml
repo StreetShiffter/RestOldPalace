@@ -31,6 +31,19 @@ services:
       #прописан condition, так как есть хелвчек в этих контейнерах и сервис включится при условии
       #не только запуска, но и проверки здоровья контейнера (контейнер=0)
 
+  telegram_bot:
+    build: .
+    command: python telegram_bot.py
+    volumes:
+      - .:/RestOldPalace
+      - media_volume:/RestOldPalace/media  # нужно для отправки скриншотов
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: always
+
 
 # ПРОПИСЫВАЕМ Celery
   worker:

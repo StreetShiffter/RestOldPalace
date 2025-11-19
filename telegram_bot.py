@@ -3,21 +3,27 @@ import os
 import re
 from pathlib import Path
 
+# === САМОЕ ПЕРВОЕ: настройка Django ===
+BASE_DIR = Path(__file__).resolve().parent  # корень проекта (где manage.py)
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
+
 import django
+django.setup()  # ← ДОЛЖЕН БЫТЬ ДО ИМПОРТА МОДЕЛЕЙ!
+
+# === Только теперь можно импортировать из Django-приложений ===
+from dotenv import load_dotenv
+load_dotenv(override=True)
+
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import BotCommand, ContentType, KeyboardButton, ReplyKeyboardMarkup
 from asgiref.sync import sync_to_async
-from dotenv import load_dotenv
+
+# Эти импорты теперь безопасны:
 from restic.models import Booking, Payment
 from users.models import User
-
-# --- Django setup ---
-BASE_DIR = Path(__file__).resolve().parent.parent
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
-django.setup()
 
 
 # --- Config ---
