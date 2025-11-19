@@ -292,6 +292,7 @@ CELERY_RESULT_BACKEND = os.getenv("REDIS_URL", "redis://localhost:6379/0")
 CELERY_WORKER_POOL = "eventlet"
 CELERY_WORKER_POOL_RESTARTS = True
 
+
 # Опционально: сериализация
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
