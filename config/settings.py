@@ -13,7 +13,7 @@ load_dotenv(override=True)  # ИСПОЛЬЗОВАТЬ ДАННЫЕ ИЗ ПЕР�
 # SECURITY WARNING: django app secret!
 SECRET_KEY = os.getenv("SECRET_KEY")
 DEBUG = True if os.getenv("DEBUG") == "True" else False
-ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "127.0.0.1").split(",")
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition

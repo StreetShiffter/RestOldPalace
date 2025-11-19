@@ -144,117 +144,48 @@
 }
 
 /* Стили для ленты видео */
-.video-carousel-container {
-    position: relative;
-    width: 100%;
-    overflow: hidden; /* Скрываем всё, что выходит за границы контейнера */
-    margin: 0 auto;
-    padding: 0 40px; /* Отступы для кнопок */
+.youtube-carousel {
+  display: flex;
+  gap: 16px;
+  padding: 16px;
+  overflow-x: auto;
+  overflow-y: hidden; /* 🚫 Запрещаем вертикальный скролл */
+  -webkit-overflow-scrolling: touch;
+  height: auto; /* Убедитесь, что высота не фиксирована */
 }
-
-.video-carousel {
-    display: flex;
-    transition: transform 0.5s ease; /* Плавное смещение при прокрутке */
-    gap: 1.5rem; /* Отступы между видео */
-    padding: 1rem 0; /* Отступы сверху и снизу */
-}
-
 .video-wrapper {
-    position: relative;
-    width: 350px; /* Фиксированная ширина */
-    height: 175px; /* Фиксированная высота */
-    border-radius: 12px; /* Закругленные углы */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Тень */
-    overflow: hidden; /* Обрезаем видео, если оно не вписывается */
-    flex-shrink: 0; /* Не сжимаем видео */
-    transition: transform 0.3s ease; /* Плавное увеличение */
+  flex: 0 0 auto;
+  width: 350px;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  height: 197px; /* Фиксируем высоту, чтобы не было "прыжков" */
+}
+/* Кастомная горизонтальная полоса прокрутки */
+.youtube-carousel::-webkit-scrollbar {
+    height: 8px; /* Высота горизонтального скролла */
 }
 
-.video-wrapper:hover {
-    transform: scale(1.5); /* Увеличиваем на 50% */
-    z-index: 100; /* Поднимаем над другими элементами при наведении */
+.youtube-carousel::-webkit-scrollbar-track {
+    background: #470068; /* Цвет трека */
+    border-radius: 4px;
 }
 
-.video-wrapper video {
-    width: 100%; /* Занимает всю ширину обертки */
-    height: 100%; /* Занимает всю высоту обертки */
-    object-fit: cover; /* Обрезаем видео, чтобы оно заполнило обертку */
-    display: block;
-    transition: opacity 0.3s ease; /* Плавное появление элементов управления */
+.youtube-carousel::-webkit-scrollbar-thumb {
+    background: #FABA53; /* Цвет ползунка */
+    border-radius: 4px;
 }
 
-/* Псевдоэлемент для увеличения и фокуса */
-.video-wrapper::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 1; /* Под видео, но над фоном */
-    pointer-events: none; /* Не мешает событиям наведения */
-    opacity: 0; /* Сначала невидим */
-    transition: opacity 0.3s ease;
+.youtube-carousel::-webkit-scrollbar-thumb:hover {
+    background: #ffd780; /* При наведении */
 }
 
-.video-wrapper:hover::before {
-    opacity: 0.1; /* Легкий оверлей при наведении */
-    background-color: rgba(0, 0, 0, 0.1); /* Цвет оверлея */
+/* Для Firefox */
+.youtube-carousel {
+    scrollbar-width: thin;
+    scrollbar-color: #FABA53 #470068;
 }
 
-/* Стили для кнопок листания */
-.carousel-button {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    background-color: rgba(0, 0, 0, 0.5);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    z-index: 200; /* Поверх видео */
-    font-size: 1.5rem;
-    transition: background-color 0.3s;
-}
-
-.carousel-button:hover {
-    background-color: rgba(0, 0, 0, 0.8);
-}
-
-.carousel-button.prev {
-    left: 0;
-}
-
-.carousel-button.next {
-    right: 0;
-}
-
-/* Индикаторы страниц (по желанию) */
-.carousel-indicators {
-    display: flex;
-    justify-content: center;
-    gap: 0.5rem;
-    margin-top: 1rem;
-}
-
-.indicator {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background-color: #bbb;
-    border: none;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-.indicator.active {
-    background-color: #470068;
-}
 </style>
 
 <link rel="stylesheet" href="{% static 'css/menu_color.css' %}">
@@ -358,56 +289,25 @@
     </div>
 
     <!-- Блок "Видео" -->
-    <div class="container mt-5">
-        <h3 class="services-title">Наши видео</h3>
-        <div class="video-carousel-container">
-                    <!-- КНОПКИ ДОЛЖНЫ БЫТЬ ПРЯМО В CONTAINER, НО ВНЕ CAROUSEL -->
-        <button class="carousel-button prev" id="prevBtn">&#8249;</button>
-        <button class="carousel-button next" id="nextBtn">&#8250;</button>
-        <!-- Индикаторы (по желанию) -->
-            <!--
-            <div class="carousel-indicators" id="carouselIndicators">
-                <button class="indicator active" data-slide="0"></button>
-                <button class="indicator" data-slide="1"></button>
-                <button class="indicator" data-slide="2"></button>
+            <div class="container mt-5">
+                <h3 class="services-title">Наши видео</h3>
+                <div class="youtube-carousel">
+                    {% for embed_url in vk_video_urls %}
+                        <div class="video-wrapper">
+                            <iframe
+                                width="350"
+                                height="197"
+                                src="{{ embed_url }}"
+                                frameborder="0"
+                                allowfullscreen
+                                allow="autoplay; encrypted-media; fullscreen; picture-in-picture">
+                            </iframe>
+                        </div>
+                    {% empty %}
+                        <p>Видео пока нет. Добавьте embed-ссылки в <code>vk_video_links.txt</code>.</p>
+                    {% endfor %}
+                </div>
             </div>
-            -->
-            <div class="video-carousel" id="videoCarousel">
-                <div class="video-wrapper">
-                    <!-- что бы видео не грузить сразу, то уберите preload="metadata"
-                     и ставьте none - тогда будет загрузка по факту-->
-                    <video preload="none" poster="{% static 'restic/images/to/1.png' %}" muted playsinline>
-                        <source src="{% static 'restic/videos/1.mp4' %}" type="video/mp4">
-                        Ваш браузер не поддерживает HTML5 видео.
-                    </video>
-                </div>
-
-                <div class="video-wrapper">
-                    <!-- что бы видео не грузить сразу, то уберите preload="metadata"
-                     и ставьте none - тогда будет загрузка по факту-->
-                    <video preload="none" poster="{% static 'restic/images/to/1.png' %}" muted playsinline>
-                        <source src="{% static 'restic/videos/1.mp4' %}" type="video/mp4">
-                        Ваш браузер не поддерживает HTML5 видео.
-                    </video>
-                </div>
-
-                <div class="video-wrapper">
-                    <!-- что бы видео не грузить сразу, то уберите preload="metadata"
-                     и ставьте none - тогда будет загрузка по факту-->
-                    <video preload="none" poster="{% static 'restic/images/to/1.png' %}" muted playsinline>
-                        <source src="{% static 'restic/videos/1.mp4' %}" type="video/mp4">
-                        Ваш браузер не поддерживает HTML5 видео.
-                    </video>
-                </div>
-
-                <div class="video-wrapper">
-                    <!-- что бы видео не грузить сразу, то уберите preload="metadata"
-                     и ставьте none - тогда будет загрузка по факту-->
-                    <video preload="none" poster="{% static 'restic/images/to/1.png' %}" muted playsinline>
-                        <source src="{% static 'restic/videos/1.mp4' %}" type="video/mp4">
-                        Ваш браузер не поддерживает HTML5 видео.
-                    </video>
-                </div>
 
         </div>
     </div>

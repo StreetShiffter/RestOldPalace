@@ -10,7 +10,7 @@ from datetime import datetime
 from django.contrib import messages
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.mail import EmailMessage
-from django.shortcuts import redirect, get_object_or_404
+from django.shortcuts import redirect, get_object_or_404, render
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.views import View
@@ -20,6 +20,7 @@ from config.settings import EMAIL_HOST_USER
 from restic.forms import BookingCreateForm, BookingUpdateForm
 from restic.mixins import ScreenshotHandlerMixin
 from restic.models import Feedback, Booking, Table, Payment
+from restic.video_carusel import get_vk_video_urls
 from users.services import send_telegram_message_with_photo
 
 # Генерация ссылки СБП с суммой
@@ -30,6 +31,11 @@ class RestHomeView(TemplateView):
     """ГЛАВНАЯ СТРАНИЦА + ФОРМА ФИДБЕКА"""
 
     template_name = "restic/index.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["vk_video_urls"] = get_vk_video_urls()
+        return context
 
     def post(self, request):
         name = request.POST.get("name")
