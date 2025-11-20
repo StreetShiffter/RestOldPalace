@@ -26,12 +26,12 @@
             </a>
         {% endif %}
 
-        {% if user.is_staff and expiring_bookings_count > 0 %}
-            <a href="{% url 'admin:restic_booking_changelist' %}?is_cancelled__exact=0"
-               title="Завершатся в ближайшие 30 минут: {{ expiring_bookings_count }} броней"
+        {% if user.is_staff and new_pay_count > 0 %}
+            <a href="{% url 'admin:restic_payment_changelist' %}"
+               title="У вас {{ new_pay_count }} новая(ых) оплата(ы) на проверке"
                style="display: inline-block;">
-                <img src="{% static 'restic/images/mail_booking.png' %}"
-                     alt="Скоро завершится"
+                <img src="{% static 'restic/mail_pay.png' %}"
+                     alt="Новые оплаты"
                      style="height: 32px; width: auto;">
             </a>
         {% endif %}
