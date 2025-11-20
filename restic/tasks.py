@@ -30,26 +30,31 @@ def cancel_unpaid_booking(booking_id):
 
 @shared_task
 def cancel_expired_bookings():
-    """Отменяет брони, которые начались более 10 минут назад и не подтверждены."""
+    """Отменяет брони, которые начались более 10 минут от начала брони - автоочистка брони для новых клиентов"""
+# Вводные времени сейчас и с интервалом -10 минут
     now = timezone.now()
     threshold = now - timedelta(minutes=10)
 
+# Фильтр брони
     expired = Booking.objects.filter(
         is_cancelled=False,
         is_sold=False,
+        #SELECT * FROM booking WHERE booking_date <= '2025-11-20';
         booking_date__lte=now.date(),
     )
-
+# Счетчик отмены и уведомлений
     count_cancelled = 0
     count_notified = 0
 
     for booking in expired:
+        # Что бы посмотреть стартовое время .make_aware склеивает отдельные дату и время модели
+        # и совмещает с таймзоной из settings
         start_time = timezone.make_aware(
-            datetime.combine(booking.booking_date, booking.booking_time),
+            datetime.combine(booking.booking_date, booking.booking_.make_aware),
             timezone.get_default_timezone(),
         )
         if start_time <= threshold:
-            # Отменяем бронь
+            # Отменяем бронь если не отменена и обновляем поля в БД
             if not booking.is_cancelled:
                 booking.is_cancelled = True
                 booking.cancelled_at = now
@@ -60,7 +65,7 @@ def cancel_expired_bookings():
             if (
                 booking.user
                 and booking.user.telegram_chat_id
-                and not booking.telegram_end_notification_sent
+                and not booking.telegram_end_notification_sent # если в модели False
             ):
                 message = f"Бронь №{booking.id} завершена. Спасибо, что посетили нас!"
                 send_telegram_message(booking.user.telegram_chat_id, message)
