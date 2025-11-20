@@ -57,6 +57,7 @@ class Booking(models.Model):
         null=True, blank=True, verbose_name="Время отмены"
     )
     is_sold = models.BooleanField(default=False)
+    telegram_end_notification_sent = models.BooleanField(default=False, verbose_name="Количество отправлений в бота")
 
     screenshot = models.ImageField(
         upload_to="bookings/screenshots/",

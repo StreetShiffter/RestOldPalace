@@ -34,28 +34,38 @@ def cancel_expired_bookings():
     now = timezone.now()
     threshold = now - timedelta(minutes=10)
 
-    # Брони, которые начались >10 мин назад, не отменены и не проданы
     expired = Booking.objects.filter(
         is_cancelled=False,
         is_sold=False,
         booking_date__lte=now.date(),
     )
-    # Отслеживание в celery
-    count = 0
+
+    count_cancelled = 0
+    count_notified = 0
+
     for booking in expired:
         start_time = timezone.make_aware(
             datetime.combine(booking.booking_date, booking.booking_time),
             timezone.get_default_timezone(),
         )
         if start_time <= threshold:
-            booking.is_cancelled = True
-            booking.cancelled_at = now
-            booking.save(update_fields=["is_cancelled", "cancelled_at"])
-            count += 1
+            # Отменяем бронь
+            if not booking.is_cancelled:
+                booking.is_cancelled = True
+                booking.cancelled_at = now
+                booking.save(update_fields=["is_cancelled", "cancelled_at"])
+                count_cancelled += 1
 
-        # Уведомление в Telegram
-        if booking.user and booking.user.telegram_chat_id:
-            message = f"Бронь №{booking.id} завершена. Спасибо, что посетил нас!"
-            send_telegram_message(booking.user.telegram_chat_id, message)
+            # Отправляем уведомление ТОЛЬКО ОДИН РАЗ
+            if (
+                booking.user
+                and booking.user.telegram_chat_id
+                and not booking.telegram_end_notification_sent
+            ):
+                message = f"Бронь №{booking.id} завершена. Спасибо, что посетили нас!"
+                send_telegram_message(booking.user.telegram_chat_id, message)
+                booking.telegram_end_notification_sent = True
+                booking.save(update_fields=["telegram_end_notification_sent"])
+                count_notified += 1
 
-    print(f"Отменено {count} просроченных броней.")
+    print(f"Отменено броней: {count_cancelled}, отправлено уведомлений: {count_notified}")
