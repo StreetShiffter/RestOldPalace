@@ -4,6 +4,8 @@ from celery import shared_task
 from django.utils import timezone
 from .models import Booking
 from users.services import send_telegram_message
+import logging
+logger = logging.getLogger(__name__)
 
 
 @shared_task
@@ -30,42 +32,33 @@ def cancel_unpaid_booking(booking_id):
 
 @shared_task
 def cancel_expired_bookings():
-    """Отменяет брони, которые начались более 10 минут от начала брони - автоочистка брони для новых клиентов"""
-# Вводные времени сейчас и с интервалом -10 минут
+    """Отменяет брони, которые начались более 10 минут назад — автоочистка для новых клиентов."""
     now = timezone.now()
     threshold = now - timedelta(minutes=10)
 
-# Фильтр брони
-    expired = Booking.objects.filter(
+    candidates = Booking.objects.filter(
         is_cancelled=False,
-        is_sold=False,
-        #SELECT * FROM booking WHERE booking_date <= '2025-11-20';
         booking_date__lte=now.date(),
-    )
-# Счетчик отмены и уведомлений
+    ).exclude(is_sold=True)
+
     count_cancelled = 0
     count_notified = 0
 
-    for booking in expired:
-        # Что бы посмотреть стартовое время .make_aware склеивает отдельные дату и время модели
-        # и совмещает с таймзоной из settings
+    for booking in candidates:
         start_time = timezone.make_aware(
-            datetime.combine(booking.booking_date, booking.booking_.make_aware),
+            datetime.combine(booking.booking_date, booking.booking_time),
             timezone.get_default_timezone(),
         )
         if start_time <= threshold:
-            # Отменяем бронь если не отменена и обновляем поля в БД
-            if not booking.is_cancelled:
-                booking.is_cancelled = True
-                booking.cancelled_at = now
-                booking.save(update_fields=["is_cancelled", "cancelled_at"])
-                count_cancelled += 1
+            booking.is_cancelled = True
+            booking.cancelled_at = now
+            booking.save(update_fields=["is_cancelled", "cancelled_at"])
+            count_cancelled += 1
 
-            # Отправляем уведомление ТОЛЬКО ОДИН РАЗ
             if (
                 booking.user
                 and booking.user.telegram_chat_id
-                and not booking.telegram_end_notification_sent # если в модели False
+                and not booking.telegram_end_notification_sent
             ):
                 message = f"Бронь №{booking.id} завершена. Спасибо, что посетили нас!"
                 send_telegram_message(booking.user.telegram_chat_id, message)
@@ -73,4 +66,4 @@ def cancel_expired_bookings():
                 booking.save(update_fields=["telegram_end_notification_sent"])
                 count_notified += 1
 
-    print(f"Отменено броней: {count_cancelled}, отправлено уведомлений: {count_notified}")
+    logger.info(f"Отменено броней: {count_cancelled}, отправлено уведомлений: {count_notified}")
