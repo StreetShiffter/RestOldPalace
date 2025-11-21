@@ -108,14 +108,14 @@ services:
     image: postgres:16
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    environment:
-      - POSTGRES_DB=${DB_NAME}
-      - POSTGRES_USER=${DB_USER}
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
     env_file:
       - .env #Хоть он лежит рядом, но лучше явно указать
       #Нужен так как мы переопределяем environment и берем
       # данные из .env который лежит рядом - РАБОТА НА УРОВНЕ КОНТЕЙНЕРА, А НЕ DJANGO
+    environment:
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
     healthcheck:
       test: "pg_isready -U $${POSTGRES_USER}"# $$DB_USER если не сработает
       interval: 10s
