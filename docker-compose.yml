@@ -8,7 +8,8 @@ services:
     command: sh -c "
       python manage.py migrate --noinput &&
       python manage.py collectstatic --noinput --clear &&
-      python manage.py loaddata fixture_tables  fixture_worker&&
+      python manage.py loaddata fixture_tables  &&
+      python manage.py loaddata fixture_worker &&
       python manage.py create_initial_data &&
       gunicorn config.wsgi:application --bind 0.0.0.0:8000
       "
