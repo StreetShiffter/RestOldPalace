@@ -163,7 +163,7 @@ class CommandWorker(models.Model):
                                 FileExtensionValidator(
                     ["png", "jpg", "jpeg"], "Только изображения формата png, jpg, jpeg")],
                               )
-    salary = models.DecimalField(max_digits=6, decimal_places=2, verbose_name="Зарплата")
+    salary = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Зарплата")
     date_employments = models.DateField(auto_now_add=True)
     date_faired = models.DateTimeField(null=True, blank=True)
 
