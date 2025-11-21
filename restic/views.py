@@ -14,12 +14,12 @@ from django.shortcuts import redirect, get_object_or_404, render
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.views import View
-from django.views.generic import TemplateView, CreateView, DetailView, UpdateView
+from django.views.generic import TemplateView, CreateView, DetailView, UpdateView, ListView
 
 from config.settings import EMAIL_HOST_USER
 from restic.forms import BookingCreateForm, BookingUpdateForm
 from restic.mixins import ScreenshotHandlerMixin
-from restic.models import Feedback, Booking, Table, Payment
+from restic.models import Feedback, Booking, Table, Payment, CommandWorker
 from restic.video_carusel import get_vk_video_urls
 from users.services import send_telegram_message_with_photo
 
@@ -63,10 +63,11 @@ class RestHomeView(TemplateView):
         return redirect("restic:index")
 
 
-class RestAboutView(TemplateView):
-    """ИНФОРМАЦИОННАЯ СТРАНИЦА"""
-
+class RestAboutView(ListView):
+    """ИНФОРМАЦИОННАЯ СТРАНИЦА + Комманда"""
+    model = CommandWorker
     template_name = "restic/about.html"
+    context_object_name = "staff"
 
 
 class RestBookingView(ScreenshotHandlerMixin, CreateView):

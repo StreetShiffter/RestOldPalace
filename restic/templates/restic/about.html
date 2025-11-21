@@ -402,116 +402,26 @@
 
     <!-- Контейнер для аватаров — квадраты -->
     <div class="team-icons-container">
-        <div class="text-center">
-            <div class="team-icon">
-                <img src="{% static 'restic/images/coocer1.jpg' %}" alt="Иван Сидоров">
-                <div class="team-description">
-                    <h4>Виктор Петрович Баринов</h4>
-                    <p>Опытный шеф-повар с 15-летним стажем, специализируется на авторской кухне. Имеет 5 всеросийских и 3 международных награды за профессиональные достижения.</p>
-                </div>
-            </div>
-            <div class="team-member">
-                <div class="team-name">Шеф-повар</div>
-            </div>
+  {% for worker in staff %}
+    <div class="text-center">
+      <div class="team-icon">
+        {% if worker.image %}
+          <img src="{{ worker.image.url }}" alt="{{ worker.name }}">
+        {% else %}
+          <img src="{% static 'restic/images/default-avatar.png' %}" alt="Нет фото">
+        {% endif %}
+        <div class="team-description">
+          <h4>{{ worker.name }}</h4>
+          <p>{{ worker.description }}</p>
         </div>
-        <div class="text-center">
-            <div class="team-icon">
-                <img src="{% static 'restic/images/coocer2.jpg' %}" alt="Мария Козлова">
-                <div class="team-description">
-                    <h4>Лев Семёнович Соловьёв</h4>
-                    <p>Су-шеф, помогает воплощать в жизнь идеи шефа-повара. Проходил практику в таких имениитых ресторанах франции как "La Tour d’Argent" и "Le Train Bleu".</p>
-                </div>
-            </div>
-            <div class="team-member">
-                <div class="team-name">Су-шеф</div>
-            </div>
-        </div>
-        <div class="text-center">
-            <div class="team-icon">
-                <img src="{% static 'restic/images/barmen.jpg' %}" alt="Алексей Волков">
-                <div class="team-description">
-                    <h4>Константин Анисимов</h4>
-                    <p>Профессиональный бармен, создающий коктейли, как произведения искусства. В его арсенале более 150 рецептов напитков из которых 20 - авторские.</p>
-                </div>
-            </div>
-            <div class="team-member">
-                <div class="team-name">Бармен</div>
-            </div>
-        </div>
-        <div class="text-center">
-            <div class="team-icon">
-                <img src="{% static 'restic/images/coocercandy.jpg' %}" alt="Анна Петрова">
-                <div class="team-description">
-                    <h4>Луи Бенуа (фр. Louis Benoît)</h4>
-                    <p>Луи — настоящий французский кондитер. Он всегда выполняет свои обязанности на все сто процентов. Луи вкладывает душу в каждый приготовленный десерт и считается лучшим кондитером Москвы.</p>
-                </div>
-            </div>
-            <div class="team-member">
-                <div class="team-name">Повар - кондитер</div>
-            </div>
-        </div>
-        <div class="text-center">
-            <div class="team-icon">
-                <img src="{% static 'restic/images/coocersenya.jpeg' %}" alt="Петр Смирнов">
-                <div class="team-description">
-                    <h4>Арсений Чуганин</h4>
-                    <p>Повар-универсал, знающий толк в приготовлениях мясных блюд. Особенно хороши его блюда: классический американский стейк,
-                        Запеченная индейка с апельсинами и бифштекс по-мичигански.</p>
-                </div>
-            </div>
-            <div class="team-member">
-                <div class="team-name">Повар-универсал</div>
-            </div>
-        </div>
-        <div class="text-center">
-            <div class="team-icon">
-                <img src="{% static 'restic/images/coocerfedya.jpg' %}" alt="Елена Волкова">
-                <div class="team-description">
-                    <h4>Фёдор Юрченко</h4>
-                    <p>Специалист по рыбе и рыбным блюдам. Он часто имеет дело с рыбой, поэтому и считает себя моряком.</p>
-                </div>
-            </div>
-            <div class="team-member">
-                <div class="team-name">Повар-универсал</div>
-            </div>
-        </div>
-        <div class="text-center">
-            <div class="team-icon">
-                <img src="{% static 'restic/images/ofik.jpg' %}" alt="Елена Волкова">
-                <div class="team-description">
-                    <h4>Максим Лавров </h4>
-                    <p>Официант с высоким уровнем сервиса и знанием меню. Весёлый и харизматичный парнишка, который хочет в будущем стать известным поваром.</p>
-                </div>
-            </div>
-            <div class="team-member">
-                <div class="team-name">Официант</div>
-            </div>
-        </div>
-        <div class="text-center">
-            <div class="team-icon">
-                <img src="{% static 'restic/images/manager.jpg' %}" alt="Елена Волкова">
-                <div class="team-description">
-                    <h4>Виктория Гончарова </h4>
-                    <p>Ваш главный друг на время посещения ресторана. Виктория является администратором ресторана, которая знает как встретить и расположить гостей в зале, быстро и качественно обслужить и оставить хорошие впечатления об этом замечательном месте.</p>
-                </div>
-            </div>
-            <div class="team-member">
-                <div class="team-name">Администратор</div>
-            </div>
-        </div>
-        <div class="text-center">
-            <div class="team-icon">
-                <img src="{% static 'restic/images/ofik2.jpg' %}" alt="Елена Волкова">
-                <div class="team-description">
-                    <h4>Анастасия Анисимова</h4>
-                    <p>Яркая и приветливая официантка, которая поможет с выбором блюд в меню и посоветует то, что точно захотите попробовать.</p>
-                </div>
-            </div>
-            <div class="team-member">
-                <div class="team-name">Официант</div>
-            </div>
-        </div>
+      </div>
+      <div class="team-member">
+        <div class="team-name">{{ worker.get_position_display }}</div>
+      </div>
     </div>
+  {% endfor %}
+
+
 </div>
 {% endblock %}
 

@@ -40,5 +40,5 @@ RUN mkdir -p /RestOldPalace/media
 # Открываем порт (для документации, не обязателен)
 EXPOSE 8000
 
-# Запуск приложения
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+# Запуск приложения (yне нужно, так как запуск прописан в контейнере docker-compose)
+#CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]

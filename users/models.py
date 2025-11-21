@@ -5,6 +5,8 @@ from django.core.validators import (
     FileExtensionValidator,
 )
 from django.db import models
+from django.template.defaultfilters import length
+
 from users.validators import phone_validator
 
 

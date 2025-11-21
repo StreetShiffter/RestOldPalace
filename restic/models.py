@@ -1,5 +1,6 @@
 from datetime import timedelta
 
+from django.core.validators import FileExtensionValidator
 from django.db import models
 from config import settings
 
@@ -140,3 +141,35 @@ class Feedback(models.Model):
 
     def __str__(self):
         return f"Сообщение от {self.email}"
+
+class CommandWorker(models.Model):
+    '''Модель команды работников'''
+    POSITION_CHOICES = [('master_chief', 'Шеф - повар'),
+                        ('su_chief', 'Су-шеф'),
+                        ('barmen', 'Бармен'),
+                        ('chief_candy', 'Повар-кондитер'),
+                        ('chief', 'Повар-универсал'),
+                        ('oficiant', 'Официант'),
+                        ('admin', 'Администратор')
+                        ]
+    position = models.CharField(max_length=50, choices = POSITION_CHOICES, verbose_name="Должность")
+    name = models.CharField(max_length=50, verbose_name="Имя")
+    description = models.TextField(verbose_name= "Описание сотрудника")
+    image = models.ImageField(upload_to="images/",
+                              verbose_name="Аватар",
+                              null=True,
+                              blank=True,
+                              validators=[
+                                FileExtensionValidator(
+                    ["png", "jpg", "jpeg"], "Только изображения формата png, jpg, jpeg")],
+                              )
+    salary = models.DecimalField(max_digits=6, decimal_places=2, verbose_name="Зарплата")
+    date_employments = models.DateField(auto_now_add=True)
+    date_faired = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        verbose_name = "Сотрудник"
+        verbose_name_plural = "Сотрудники"
+
+    def __str__(self):
+        return f"Сотрудник {self.name}, должность: {self.position}"
