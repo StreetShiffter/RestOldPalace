@@ -1,6 +1,6 @@
 [
   {
-    "model": "users.commandworker",
+    "model": "restic.commandworker",
     "pk": 1,
     "fields": {
       "position": "master_chief",
@@ -12,7 +12,7 @@
     }
   },
   {
-    "model": "users.commandworker",
+    "model": "restic.commandworker",
     "pk": 2,
     "fields": {
       "position": "su_chief",
@@ -24,7 +24,7 @@
     }
   },
   {
-    "model": "users.commandworker",
+    "model": "restic.commandworker",
     "pk": 3,
     "fields": {
       "position": "barmen",
@@ -36,7 +36,7 @@
     }
   },
   {
-    "model": "users.commandworker",
+    "model": "restic.commandworker",
     "pk": 4,
     "fields": {
       "position": "chief_candy",
@@ -48,7 +48,7 @@
     }
   },
   {
-    "model": "users.commandworker",
+    "model": "restic.commandworker",
     "pk": 5,
     "fields": {
       "position": "chief",
@@ -60,7 +60,7 @@
     }
   },
   {
-    "model": "users.commandworker",
+    "model": "restic.commandworker",
     "pk": 6,
     "fields": {
       "position": "chief",
@@ -72,7 +72,7 @@
     }
   },
   {
-    "model": "users.commandworker",
+    "model": "restic.commandworker",
     "pk": 7,
     "fields": {
       "position": "oficiant",
@@ -84,7 +84,7 @@
     }
   },
   {
-    "model": "users.commandworker",
+    "model": "restic.commandworker",
     "pk": 3,
     "fields": {
       "position": "admin",
@@ -96,7 +96,7 @@
     }
   },
   {
-    "model": "users.commandworker",
+    "model": "restic.commandworker",
     "pk": 3,
     "fields": {
       "position": "oficiant",
