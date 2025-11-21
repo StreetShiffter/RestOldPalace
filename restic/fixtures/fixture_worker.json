@@ -85,7 +85,7 @@
   },
   {
     "model": "restic.commandworker",
-    "pk": 3,
+    "pk": 8,
     "fields": {
       "position": "admin",
       "name": "Виктория Гончарова",
@@ -97,7 +97,7 @@
   },
   {
     "model": "restic.commandworker",
-    "pk": 3,
+    "pk":9,
     "fields": {
       "position": "oficiant",
       "name": "Анастасия Анисимова",
