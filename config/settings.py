@@ -301,8 +301,12 @@ CELERY_TIMEZONE = TIME_ZONE
 #
 # # Настройки Celery Beat (планировщик)
 CELERY_BEAT_SCHEDULE = {
-    "cancel-expired-bookings": {
-        "task": "restic.tasks.cancel_expired_bookings",
+    # "cancel-expired-bookings": {
+    #     "task": "restic.tasks.cancel_expired_bookings",
+    #     "schedule": 300.0,  # каждые 5 минут
+    # },
+    "expire-started-bookings": {
+        "task": "restic.tasks.expire_started_bookings",
         "schedule": 300.0,  # каждые 5 минут
     },
 }
