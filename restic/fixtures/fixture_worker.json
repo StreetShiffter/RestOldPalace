@@ -1,0 +1,109 @@
+[
+  {
+    "model": "restic.commandworker",
+    "pk": 1,
+    "fields": {
+      "position": "master_chief",
+      "name": "Виктор Петрович Баринов",
+      "image": "images/command/coocer1.jpg",
+      "description": "Опытный шеф-повар с 15-летним стажем, специализируется на авторской кухне. Имеет 5 всеросийских и 3 международных награды за профессиональные достижения.",
+      "salary": 200000,
+      "date_employments": "2008-11-14"
+    }
+  },
+  {
+    "model": "restic.commandworker",
+    "pk": 2,
+    "fields": {
+      "position": "su_chief",
+      "name": "Лев Семёнович Соловьёв",
+      "image": "images/command/coocer2.jpg",
+      "description": "Су-шеф, помогает воплощать в жизнь идеи шефа-повара. Проходил практику в таких имениитых ресторанах франции как 'La Tour d’Argent' и 'Le Train Bleu'.",
+      "salary": 180000,
+      "date_employments": "2008-11-18"
+    }
+  },
+  {
+    "model": "restic.commandworker",
+    "pk": 3,
+    "fields": {
+      "position": "barmen",
+      "name": "Константин Анисимов",
+      "image": "images/command/barmen.jpg",
+      "description": "Профессиональный бармен, создающий коктейли, как произведения искусства. В его арсенале более 150 рецептов напитков из которых 20 - авторские.",
+      "salary": 90000,
+      "date_employments": "2009-12-01"
+    }
+  },
+  {
+    "model": "restic.commandworker",
+    "pk": 4,
+    "fields": {
+      "position": "chief_candy",
+      "name": "Луи Бенуа (фр. Louis Benoît)",
+      "image": "images/command/coocercandy.jpg",
+      "description": "Луи — настоящий французский кондитер. Он всегда выполняет свои обязанности на все сто процентов. Луи вкладывает душу в каждый приготовленный десерт и считается лучшим кондитером Москвы.",
+      "salary": 170000,
+      "date_employments": "2009-02-27"
+    }
+  },
+  {
+    "model": "restic.commandworker",
+    "pk": 5,
+    "fields": {
+      "position": "chief",
+      "name": "Арсений Чуганин",
+      "image": "images/command/coocersenya.jpeg",
+      "description": "Повар-универсал, знающий толк в приготовлениях мясных блюд. Особенно хороши его блюда: классический американский стейк, запеченная индейка с апельсинами и бифштекс по-мичигански.",
+      "salary": 181000,
+      "date_employments": "2009-03-08"
+    }
+  },
+  {
+    "model": "restic.commandworker",
+    "pk": 6,
+    "fields": {
+      "position": "chief",
+      "name": "Фёдор Юрченко",
+      "image": "images/command/coocerfedya.jpg",
+      "description": "Специалист по рыбе и рыбным блюдам. Он часто имеет дело с рыбой, поэтому и считает себя моряком.",
+      "salary": 182000,
+      "date_employments": "2009-03-10"
+    }
+  },
+  {
+    "model": "restic.commandworker",
+    "pk": 7,
+    "fields": {
+      "position": "oficiant",
+      "name": "Максим Лавров",
+      "image": "images/command/ofik.jpg",
+      "description": "Официант с высоким уровнем сервиса и знанием меню. Весёлый и харизматичный парнишка, который хочет в будущем стать известным поваром.",
+      "salary": 70000,
+      "date_employments": "2009-02-01"
+    }
+  },
+  {
+    "model": "restic.commandworker",
+    "pk": 8,
+    "fields": {
+      "position": "admin",
+      "name": "Виктория Гончарова",
+      "image": "images/command/manager.jpg",
+      "description": "Ваш главный друг на время посещения ресторана. Виктория является администратором ресторана, которая знает как встретить и расположить гостей в зале, быстро и качественно обслужить и оставить хорошие впечатления об этом замечательном месте.",
+      "salary": 120000,
+      "date_employments": "2009-05-10"
+    }
+  },
+  {
+    "model": "restic.commandworker",
+    "pk":9,
+    "fields": {
+      "position": "oficiant",
+      "name": "Анастасия Анисимова",
+      "image": "images/command/ofik2.jpg",
+      "description": "Яркая и приветливая официантка, которая поможет с выбором блюд в меню и посоветует то, что точно захотите попробовать.",
+      "salary": 70000,
+      "date_employments": "2009-12-01"
+    }
+  }]

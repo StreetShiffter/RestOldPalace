@@ -1,0 +1,71 @@
+{% load static %}
+<style>
+footer {
+    background: url('{% static "restic/images/header-bg-down.jpg" %}') center/cover;
+}
+/* Гарантируем, что колонки не схлопнутся и выровнены по верху */
+.footer-row {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+.footer-col {
+    flex: 2;
+    color: #b6d4fe !important;
+    padding: 0 5rem;
+    text-align: center; /* Центрируем содержимое колонок */
+}
+.footer-col:first-child { flex: 1.5; }   /* Контакты — чуть шире */
+.footer-col:nth-child(2) { flex: 1.5; }   /* Часы — средняя ширина */
+
+
+/* Стили для формы */
+.form-control {
+    border-radius: 0.375rem; /* Скругление углов полей */
+    border: 1px solid #ced4da; /* Граница полей */
+    padding: 0.375rem 0.75rem; /* Внутренний отступ */
+    width: 100%; /* Занимает всю ширину родителя */
+    box-sizing: border-box; /* Включает padding в ширину */
+}
+.form-label {
+    font-weight: 500; /* Полужирный шрифт для меток */
+    color: #FABA53 !important;
+    margin-bottom: 0.25rem; /* Меньше отступа снизу */
+    display: block; /* Метка на отдельной строке */
+    text-align: left; /* Метки выравниваем по левому краю */
+}
+.form-control:focus {
+    border-color: #80bdff; /* Цвет границы при фокусе */
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25); /* Тень при фокусе */
+}
+.btn-success {
+    border-radius: 0.375rem; /* Скругление кнопки */
+    padding: 0.375rem 1.5rem; /* Внутренний отступ кнопки */
+    display: block; /* Кнопка как блочный элемент */
+    margin: 0 auto; /* Центрируем кнопку */
+    width: auto; /* Автоматическая ширина кнопки */
+}
+</style>
+
+<footer class="text-white pt-4 pb-3 mt-5" style="background-attachment: fixed;">
+    <div class="container-fluid">
+        <div class="footer-row">
+
+            <!-- Контакты -->
+            <div class="footer-col">
+                <h5>Контакты</h5>
+                <p>📍 Адрес: г. Москва, ул. Уютная, д. 15</p>
+                <p>📞 Телефон: +7 (495) 123-45-67</p>
+                <p>✉️ Email: info@restaurant-uyut.ru</p>
+            </div>
+
+            <!-- Часы работы -->
+            <div class="footer-col">
+                <h5>Часы работы</h5>
+                <p>Пн–Чт: 11:00 – 23:00</p>
+                <p>Пт–Сб: 11:00 – 01:00</p>
+                <p>Вс: 12:00 – 23:00</p>
+            </div>
+
+</footer>

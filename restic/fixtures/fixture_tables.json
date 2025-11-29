@@ -1,0 +1,182 @@
+[
+  {
+    "model": "restic.table",
+    "pk": 1,
+    "fields": {
+      "number": 1,
+      "capacity": 2,
+      "price": "2.00",
+      "x": 99.0,
+      "y": 48.0,
+      "is_active": true
+    }
+  },
+  {
+    "model": "restic.table",
+    "pk": 2,
+    "fields": {
+      "number": 2,
+      "capacity": 2,
+      "price": "2.00",
+      "x": 219.0,
+      "y": 48.0,
+      "is_active": true
+    }
+  },
+  {
+    "model": "restic.table",
+    "pk": 3,
+    "fields": {
+      "number": 3,
+      "capacity": 2,
+      "price": "2.00",
+      "x": 340.0,
+      "y": 48.0,
+      "is_active": true
+    }
+  },
+    {
+    "model": "restic.table",
+    "pk": 4,
+    "fields": {
+      "number": 4,
+      "capacity": 4,
+      "price": "4.00",
+      "x": 108.0,
+      "y": 168.0,
+      "is_active": true
+    }
+  },
+  {
+    "model": "restic.table",
+    "pk": 5,
+    "fields": {
+      "number": 5,
+      "capacity": 4,
+      "price": "4.00",
+      "x": 248,
+      "y": 168.0,
+      "is_active": true
+    }
+  },
+  {
+    "model": "restic.table",
+    "pk": 6,
+    "fields": {
+      "number": 6,
+      "capacity": 4,
+      "price": "4.00",
+      "x": 108,
+      "y": 284,
+      "is_active": true
+    }
+  },
+  {
+    "model": "restic.table",
+    "pk": 7,
+    "fields": {
+      "number": 7,
+      "capacity": 4,
+      "price": "4.00",
+      "x": 248,
+      "y": 284,
+      "is_active": true
+    }
+  },
+  {
+    "model": "restic.table",
+    "pk": 8,
+    "fields": {
+      "number": 8,
+      "capacity": 4,
+      "price": "4.00",
+      "x": 390,
+      "y": 284,
+      "is_active": true
+    }
+  },
+  {
+    "model": "restic.table",
+    "pk": 9,
+    "fields": {
+      "number": 9,
+      "capacity": 4,
+      "price": "4.00",
+      "x": 104.5,
+      "y": 399,
+      "is_active": true
+    }
+  },
+  {
+    "model": "restic.table",
+    "pk": 10,
+    "fields": {
+      "number": 10,
+      "capacity": 4,
+      "price": "4.00",
+      "x": 244.5,
+      "y": 399,
+      "is_active": true
+    }
+  },
+  {
+    "model": "restic.table",
+    "pk": 11,
+    "fields": {
+      "number": 11,
+      "capacity": 4,
+      "price": "4.00",
+      "x": 386.5,
+      "y": 399,
+      "is_active": true
+    }
+  },
+  {
+    "model": "restic.table",
+    "pk": 12,
+    "fields": {
+      "number": 12,
+      "capacity": 2,
+      "price": "2.00",
+      "x": 179,
+      "y": 522,
+      "is_active": true
+    }
+  },
+  {
+    "model": "restic.table",
+    "pk": 13,
+    "fields": {
+      "number": 13,
+      "capacity": 2,
+      "price": "2.00",
+      "x": 299,
+      "y": 522,
+      "is_active": true
+    }
+  },
+  {
+    "model": "restic.table",
+    "pk": 14,
+    "fields": {
+      "number": 14,
+      "capacity": 2,
+      "price": "2.00",
+      "x": 419,
+      "y": 522,
+      "is_active": true
+    }
+  },
+  {
+    "model": "restic.table",
+    "pk": 15,
+    "fields": {
+      "number": 15,
+      "capacity": 2,
+      "price": "2.00",
+      "x": 540,
+      "y": 522,
+      "is_active": true
+    }
+  }
+]

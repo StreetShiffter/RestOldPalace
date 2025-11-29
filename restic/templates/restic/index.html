@@ -1,0 +1,379 @@
+{% extends 'restic/base.html' %}
+{% load static %}
+{% block title %}Главная — Ресторан "Grill House"{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Баннерное фото — на всю ширину экрана */
+.banner-img {
+    width: 100vw; /* Полная ширина экрана */
+    height: 720px; /* Фиксированная высота */
+    object-fit: cover;
+    object-position: center;
+    display: block;
+    margin: 0 auto;
+    margin-left: calc(-50vw + 50%); /* Центрируем посередине */
+}
+
+/* Оверлей — сверху фото */
+.banner-card-overlay {
+    position: absolute;
+    top: 10%; /* Сдвинули вверх */
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+}
+
+/* Кнопка */
+.home-nav-link-gold {
+    display: inline-block;
+    background-color: rgba(0, 0, 0, 0.6);
+    color: white;
+    font-size: 1.5rem;
+    font-weight: bold;
+    padding: 15px 30px;
+    border-radius: 50px;
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: background-color 0.3s;
+}
+
+.home-nav-link-gold:hover {
+    background-color: rgba(0, 0, 0, 0.8);
+    color: #FABA53;
+}
+
+/* Кастомный стиль для "О нас" */
+.about-us-title {
+    font-size: 2.5rem; /* Размер заголовка */
+    font-weight: bold;
+    color: #2c3e50; /* Цвет заголовка */
+    font-family: 'Georgia', serif; /* Шрифт заголовка */
+    margin-bottom: 1rem;
+}
+
+.about-us-text {
+    font-size: 1.2rem; /* Размер текста */
+    line-height: 1.8; /* Межстрочный интервал */
+    color: #34495e; /* Цвет текста */
+    font-family: 'Arial', sans-serif; /* Шрифт текста */
+    text-align: justify; /* Выравнивание по ширине */
+}
+
+/* Контейнер для кружочков */
+.services-icons-container {
+    display: flex;
+    justify-content: center;
+    gap: 10.5rem; /* Отступы между кружочками */
+    margin-bottom: 2rem;
+}
+
+/* Кружок с фото */
+.service-icon {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    overflow: hidden;
+    transition: transform 0.5s ease; /* Плавное увеличение */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Тень */
+}
+
+/* При наведении кружок увеличивается */
+.service-icon:hover {
+    transform: scale(1.5); /* Увеличиваем на 10% */
+}
+
+.service-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Обрезаем фото, чтобы оно заполнило кружок */
+}
+
+/* Заголовок "Наши услуги" */
+.services-title {
+    text-align: center;
+    font-size: 2rem;
+    font-weight: bold;
+    color: #2c3e50;
+    font-family: 'Georgia', serif;
+    margin-bottom: 2rem;
+}
+
+/* Контейнер для услуг */
+.services-grid {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+}
+
+/* Стиль для услуги */
+.service-item {
+    text-align: center;
+    font-size: 1.1rem;
+    color: #34495e;
+    font-family: 'Arial', sans-serif;
+    line-height: 1.6;
+    flex: 1 1 200px; /* Растягиваем, но не меньше 200px */
+    max-width: 250px; /* Максимальная ширина */
+}
+
+/* Контейнер с текстурой */
+.textured-bg {
+    /*background:
+        linear-gradient(rgba(100, 255, 255, 0.8), rgba(255, 255, 255, 0.8)),
+        url('{% static "restic/images/mainall.jpg" %}');*//* Доп градиент */
+
+    background-image: url('{% static "restic/images/mainall.jpg" %}'); /* Путь к текстуре */
+    background-size: cover; /* Растягиваем текстуру */
+    background-position: center; /* Центрируем */
+    background-attachment: fixed; /* Фиксируем фон */
+    padding: 2rem 0; /* Отступы сверху и снизу */
+}
+
+/* Если хотите полупрозрачный оверлей сверху текстуры */
+.textured-bg::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.7); /* Белый с прозрачностью */
+    z-index: -1; /* Позади текста */
+}
+
+/* Стили для ленты видео */
+.youtube-carousel {
+  display: flex;
+  gap: 16px;
+  padding: 16px;
+  overflow-x: auto;
+  overflow-y: hidden; /* 🚫 Запрещаем вертикальный скролл */
+  -webkit-overflow-scrolling: touch;
+  height: auto; /* Убедитесь, что высота не фиксирована */
+}
+.video-wrapper {
+  flex: 0 0 auto;
+  width: 350px;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  height: 197px; /* Фиксируем высоту, чтобы не было "прыжков" */
+}
+/* Кастомная горизонтальная полоса прокрутки */
+.youtube-carousel::-webkit-scrollbar {
+    height: 8px; /* Высота горизонтального скролла */
+}
+
+.youtube-carousel::-webkit-scrollbar-track {
+    background: #470068; /* Цвет трека */
+    border-radius: 4px;
+}
+
+.youtube-carousel::-webkit-scrollbar-thumb {
+    background: #FABA53; /* Цвет ползунка */
+    border-radius: 4px;
+}
+
+.youtube-carousel::-webkit-scrollbar-thumb:hover {
+    background: #ffd780; /* При наведении */
+}
+
+/* Для Firefox */
+.youtube-carousel {
+    scrollbar-width: thin;
+    scrollbar-color: #FABA53 #470068;
+}
+
+</style>
+
+<link rel="stylesheet" href="{% static 'css/menu_color.css' %}">
+{% endblock %}
+
+{% block content %}
+<!-- Баннер — вне container -->
+<div class="position-relative">
+    <img src="{% static 'restic/images/main.jpg' %}"
+         class="banner-img"
+         alt="Празднования">
+    <div class="banner-card-overlay">
+        <a href="{% url 'restic:booking'%}" class="home-nav-link-gold">Забронировать столик</a>
+    </div>
+</div>
+
+<!-- Контент и услуги -->
+<div class="textured-bg position-relative">
+    <!-- Блок "О нас" -->
+    <div class="container mt-5">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <h3 class="about-us-title">О нас</h3>
+                <p class="about-us-text">
+                    Мы создали пространство, где каждый гость чувствует себя как дома. Наша кухня — это сочетание традиционных рецептов и современных трендов. Мы заботимся о каждом блюде и каждой детали вашего визита.
+                </p>
+            </div>
+
+            <div class="col-md-6 d-flex justify-content-center">
+                <img src="{% static 'restic/images/main2.jpg' %}"
+                     class="img-fluid"
+                     alt="Команда ресторана"
+                     style="max-height: 400px; object-fit: cover; border-radius: 8px;">
+            </div>
+        </div>
+    </div>
+
+    <!-- Блок "Мы - машина времени" -->
+    <div class="container mt-5">
+        <div class="row align-items-center">
+            <!-- Фото слева -->
+            <div class="col-md-6">
+                <img src="{% static 'restic/images/main3.jpg' %}"
+                     class="img-fluid"
+                     alt="Команда ресторана"
+                     style="max-height: 400px; object-fit: cover; border-radius: 8px;">
+            </div>
+
+            <!-- Текст справа -->
+            <div class="col-md-6">
+                <div class="text-end">
+                    <h3 class="about-us-title">МЫ - машина времени</h3>
+                    <p class="about-us-text">
+                        "Прикоснитесь ко времени" - это именно то, что ждет вас здесь. Антураж рубежей 20-х и 30-х годов, живая музыка от лучших исполнителей джаз индустрии,
+                        обстановка не просто из похожих вещей, а именно из тех замечательных времен - времен шика, куража и веселья!
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Блок "Услуги" -->
+    <div class="container mt-5">
+        <h3 class="services-title">Наши услуги</h3>
+
+        <!-- Кружочки с фото -->
+        <div class="services-icons-container">
+            <div class="service-icon">
+                <img src="{% static 'restic/service1.png' %}" alt="Бронирование">
+            </div>
+            <div class="service-icon">
+                <img src="{% static 'restic/service2.png' %}" alt="Банкеты">
+            </div>
+            <div class="service-icon">
+                <img src="{% static 'restic/service3.png' %}" alt="Доставка">
+            </div>
+            <div class="service-icon">
+                <img src="{% static 'restic/service4.png' %}" alt="Меню">
+            </div>
+        </div>
+
+        <!-- Услуги в ряд -->
+        <div class="services-grid">
+            <div class="service-item">
+                <strong>Бронирование столиков онлайн</strong>
+                <p>Забронируйте столик в удобное для вас время.</p>
+            </div>
+            <div class="service-item">
+                <strong>Организация банкетов и мероприятий</strong>
+                <p>Мы создадим атмосферу для вашего праздника.</p>
+            </div>
+            <div class="service-item">
+                <strong>Доставка еды по городу</strong>
+                <p>Вкусная еда у вас дома или в офисе.</p>
+            </div>
+            <div class="service-item">
+                <strong>Индивидуальное меню по запросу</strong>
+                <p>Создадим меню под ваши предпочтения.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Блок "Видео" -->
+            <div class="container mt-5">
+                <h3 class="services-title">Наши видео</h3>
+                <div class="youtube-carousel">
+                    {% for embed_url in vk_video_urls %}
+                        <div class="video-wrapper">
+                            <iframe
+                                width="350"
+                                height="197"
+                                src="{{ embed_url }}"
+                                frameborder="0"
+                                allowfullscreen
+                                allow="autoplay; encrypted-media; fullscreen; picture-in-picture">
+                            </iframe>
+                        </div>
+                    {% empty %}
+                        <p>Видео пока нет. Добавьте embed-ссылки в <code>vk_video_links.txt</code>.</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const videoWrappers = document.querySelectorAll('.video-wrapper');
+    const carousel = document.getElementById('videoCarousel');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    // const indicators = document.querySelectorAll('.indicator'); // Если используете индикаторы
+
+    const videoWidth = 350; // Ширина видео + отступы (350 + gap)
+    const gap = 1.5 * 16; // 1.5rem в пикселях (обычно 1rem = 16px)
+    const visibleVideos = 3; // Максимум 3 в ряд
+    let currentIndex = 0;
+    const totalVideos = videoWrappers.length;
+    const maxIndex = Math.max(0, totalVideos - visibleVideos);
+
+    function updateCarousel() {
+        const translateX = -(currentIndex * (videoWidth + gap));
+        carousel.style.transform = `translateX(${translateX}px)`;
+
+        // Обновление индикаторов (по желанию)
+        // indicators.forEach((indicator, index) => {
+        //     indicator.classList.toggle('active', index === Math.floor(currentIndex / visibleVideos));
+        // });
+    }
+
+    // Навигация
+    prevBtn.addEventListener('click', () => {
+        if (currentIndex > 0) {
+            currentIndex = Math.max(0, currentIndex - 1);
+            updateCarousel();
+        }
+    });
+
+    nextBtn.addEventListener('click', () => {
+        if (currentIndex < maxIndex) {
+            currentIndex = Math.min(maxIndex, currentIndex + 1);
+            updateCarousel();
+        }
+    });
+
+    // Обработчики для видео
+    videoWrappers.forEach(wrapper => {
+        const video = wrapper.querySelector('video');
+
+        // При наведении на обертку
+        wrapper.addEventListener('mouseenter', () => {
+            video.muted = false; // Включаем звук
+            video.controls = true; // Показываем элементы управления
+            // Попытка воспроизведения (не во всех браузерах разрешено без клика)
+            video.play().catch(e => console.log("Autoplay failed:", e));
+        });
+
+        // Когда курсор уходит
+        wrapper.addEventListener('mouseleave', () => {
+            video.muted = true; // Выключаем звук
+            video.controls = false; // Скрываем элементы управления
+            video.pause(); // Останавливаем воспроизведение
+        });
+    });
+});
+</script>
+{% endblock %}

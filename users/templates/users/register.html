@@ -1,0 +1,160 @@
+{% extends "restic/base.html" %}
+{% load static %}
+{% block title %}Регистрация пользователя{% endblock %}
+
+{% block extra_css %}
+<style>
+  .register-container {
+    max-width: 440px;
+    margin: 3rem auto;
+    padding: 0;
+  }
+
+  .register-card {
+    background-color: #FABA53;
+    padding: 2.25rem;
+    border-radius: 18px;
+    position: relative;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  }
+
+  .register-card::before {
+    content: '';
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    right: 5px;
+    bottom: 5px;
+    border: 3px solid #470068;
+    border-radius: 15px;
+    pointer-events: none;
+  }
+
+  .register-card h2 {
+    text-align: center;
+    color: #470068;
+    font-family: 'Georgia', serif;
+    font-weight: bold;
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+    text-shadow: 0.5px 0 0 currentColor, -0.5px 0 0 currentColor;
+  }
+
+  .register-card .form-group {
+    margin-bottom: 1.25rem;
+  }
+
+  .register-card label {
+    display: block;
+    font-weight: bold;
+    color: #470068;
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+  }
+
+  .register-card input[type="text"],
+  .register-card input[type="email"],
+  .register-card input[type="password"],
+  .register-card input[type="file"] {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid #470068;
+    border-radius: 10px;
+    background: white;
+    font-size: 1.1rem;
+    box-sizing: border-box;
+  }
+
+  .register-card input:focus {
+    outline: none;
+    border-color: #470068;
+    box-shadow: 0 0 0 3px rgba(71, 0, 104, 0.2);
+  }
+
+  .register-card .btn-primary-style {
+    background-color: #470068;
+    color: white;
+    border: none;
+    padding: 0.75rem;
+    font-size: 1.2rem;
+    font-weight: bold;
+    width: 100%;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-top: 0.75rem;
+  }
+
+  .register-card .btn-primary-style:hover {
+    background-color: #35004d;
+  }
+
+  /* Ссылка "Вернуться на предыдущую страницу" */
+  .register-card .back-link {
+    display: block;
+    text-align: center;
+    margin-top: 1rem;
+    font-size: 0.95rem;
+    color: #470068;
+    text-decoration: none;
+    font-weight: bold;
+  }
+
+  .register-card .back-link:hover {
+    text-decoration: underline;
+  }
+
+  /* Сообщения */
+  .register-card .alert {
+    margin-bottom: 1.25rem;
+    border-radius: 10px;
+    border: 2px solid #470068;
+  }
+
+  .register-card input[type="file"] {
+    padding: 0.5rem;
+    font-size: 1rem;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="register-container">
+  <div class="register-card">
+    <h2>Регистрация</h2>
+
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      {% for field in form %}
+        <div class="form-group">
+          <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {{ field }}
+          {% if field.errors %}
+            <div class="text-danger mt-1">
+              {{ field.errors }}
+            </div>
+          {% endif %}
+        </div>
+      {% endfor %}
+      <button type="submit" class="btn-primary-style">Зарегистрироваться</button>
+    </form>
+
+    <!-- Кнопка "Войти в кабинет" -->
+    <a href="{% url 'users:login' %}" class="btn-primary-style" style="text-decoration: none; display: inline-block; text-align: center;">
+      Войти в кабинет
+    </a>
+
+    <!-- Ссылка "Вернуться на предыдущую страницу" -->
+    <a href="javascript:history.back()" class="back-link">← Вернуться на предыдущую страницу</a>
+  </div>
+</div>
+{% endblock %}

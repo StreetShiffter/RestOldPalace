@@ -1,6 +1,7 @@
 import os
 from datetime import timedelta
 
+
 from dotenv import load_dotenv
 
 from pathlib import Path
@@ -12,7 +13,7 @@ load_dotenv(override=True)  # ИСПОЛЬЗОВАТЬ ДАННЫЕ ИЗ ПЕР�
 # SECURITY WARNING: django app secret!
 SECRET_KEY = os.getenv("SECRET_KEY")
 DEBUG = True if os.getenv("DEBUG") == "True" else False
-ALLOWED_HOSTS = ["ALLOWED_HOSTS", "*"]
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -25,31 +26,32 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "restic",
-    "rest_framework",
-    "rest_framework_simplejwt",
+    # "rest_framework",
+    # "rest_framework_simplejwt",
     "users",
     "django_filters",
+    'django_celery_beat',
     "drf_spectacular",
-    "django_celery_beat",
+    "django_cleanup.apps.CleanupConfig",
     # "corsheaders",
 ]
 
-REST_FRAMEWORK = {
-    "DEFAULT_FILTER_BACKENDS": [
-        "django_filters.rest_framework.DjangoFilterBackend",
-        "rest_framework.filters.SearchFilter",
-        "rest_framework.filters.OrderingFilter",
-    ],
-    "DEFAULT_AUTHENTICATION_CLASSES": [
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
-    ],
-    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
-}
+# REST_FRAMEWORK = {
+#     "DEFAULT_FILTER_BACKENDS": [
+#         "django_filters.rest_framework.DjangoFilterBackend",
+#         "rest_framework.filters.SearchFilter",
+#         "rest_framework.filters.OrderingFilter",
+#     ],
+#     "DEFAULT_AUTHENTICATION_CLASSES": [
+#         "rest_framework_simplejwt.authentication.JWTAuthentication",
+#     ],
+#     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+# }
 
-SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
-}
+# SIMPLE_JWT = {
+#     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
+#     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+# }
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -87,6 +89,9 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "restic.context_processors.unread_feedback",
+                "restic.context_processors.new_payment",
+                "restic.context_processors.user_notifications",
             ],
         },
     },
@@ -149,16 +154,26 @@ USE_TZ = True
 STATIC_URL = "static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]  # исходники статики
 
+STATICFILES_FINDERS = [
+    "django.contrib.staticfiles.finders.FileSystemFinder",
+    "django.contrib.staticfiles.finders.AppDirectoriesFinder",  # ← это ищет static/ в приложениях
+]
+
 # Путь в файловой системе, куда collectstatic будет копировать все файлы (как в VOLUMES)
 STATIC_ROOT = BASE_DIR / "staticfiles"  # сюда collectstatic будет копировать всё
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+
+# Максимальный размер загружаемого файла (в байтах)
+# 10 МБ = 10 * 1024 * 1024 = 10485760
+FILE_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10 МБ
+DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10 МБ
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-# AUTH_USER_MODEL = "users.User"  # Указываем кастомную модель для уинтификации
+AUTH_USER_MODEL = "users.User"  # Указываем кастомную модель для уинтификации
 #
 EMAIL_BACKEND = os.getenv("EMAIL_BACKEND")  # Настройки почты
 EMAIL_HOST = os.getenv("EMAIL_HOST")
@@ -245,7 +260,7 @@ LOGGING = {
         "level": "INFO",
     },
     "loggers": {
-        "mailservices": {  # ← имя вашего приложения
+        "restic": {  # ← имя вашего приложения
             "handlers": ["console"],
             "level": "INFO",
             "propagate": False,
@@ -253,25 +268,30 @@ LOGGING = {
     },
 }
 #
-# LOGIN_REDIRECT_URL = 'users:profile'# Редирект после логирования(имя приложения и имя в url)
-# LOGOUT_REDIRECT_URL = 'mailservices:home'# Редирект после выхода(имя приложения и имя в url )
-# LOGIN_URL = 'users:register'# Редирект на страницу регистрации, если вьюшка защищена миксином LoginRequiredMixin
+LOGIN_REDIRECT_URL = (
+    "users:profile"  # Редирект после логирования(имя приложения и имя в url)
+)
+LOGOUT_REDIRECT_URL = (
+    "restic:index"  # Редирект после выхода(имя приложения и имя в url )
+)
+LOGIN_URL = "users:register"  # Редирект на страницу регистрации, если вьюшка защищена миксином LoginRequiredMixin
 #
-# CACHES = {
-#     'default': {
-#         'BACKEND': 'django.core.cache.backends.redis.RedisCache',
-#         'LOCATION': os.getenv('REDIS_URL'),
-#     }
-# }
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": os.getenv("REDIS_URL"),
+    }
+}
 
 
 # Настройки Celery
-CELERY_BROKER_URL = "redis://localhost:6379/0"
-CELERY_RESULT_BACKEND = "redis://localhost:6379/0"
+CELERY_BROKER_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
+CELERY_RESULT_BACKEND = os.getenv("REDIS_URL", "redis://localhost:6379/0")
 
 # Используем eventlet на Windows
 CELERY_WORKER_POOL = "eventlet"
 CELERY_WORKER_POOL_RESTARTS = True
+
 
 # Опционально: сериализация
 CELERY_ACCEPT_CONTENT = ["json"]
@@ -280,11 +300,15 @@ CELERY_RESULT_SERIALIZER = "json"
 CELERY_TIMEZONE = TIME_ZONE
 #
 # # Настройки Celery Beat (планировщик)
-# CELERY_BEAT_SCHEDULE = {
-#     'deactivate-inactive-users-daily': {
-#         'task': 'educations.tasks.deactivate_inactive_users',
-#         'schedule': crontab(hour=2, minute=0),  # каждый день в 02:00
-#     },
-# }
+CELERY_BEAT_SCHEDULE = {
+    # "cancel-expired-bookings": {
+    #     "task": "restic.tasks.cancel_expired_bookings",
+    #     "schedule": 300.0,  # каждые 5 минут
+    # },
+    "expire-started-bookings": {
+        "task": "restic.tasks.expire_started_bookings",
+        "schedule": 300.0,  # каждые 5 минут
+    },
+}
 TELEGRAM_URL = "https://api.telegram.org/bot"
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")

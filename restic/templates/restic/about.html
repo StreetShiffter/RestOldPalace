@@ -1,0 +1,509 @@
+{% extends 'restic/base.html' %}
+{% load static %}
+{% block title %}О ресторане{% endblock %}
+
+{% block extra_css %}
+<style>
+
+/* Заголовок "Наша команда" */
+.team-title {
+    text-align: center;
+    font-size: 2rem;
+    font-weight: bold;
+    color: #470068;
+    font-family: 'Georgia', serif;
+    margin-bottom: 5rem;
+}
+
+/* Контейнер для авторов */
+.team-icons-container {
+    display: flex;
+    justify-content: center;
+    gap: 5rem; /* Уменьшенный отступ между фото */
+    margin-bottom: 2rem;
+    flex-wrap: wrap; /* Перенос на новую строку при необходимости */
+}
+
+/* Квадратный аватар */
+.team-icon {
+    width: 320px; /* Уменьшенный размер для 3 в ряд */
+    height: 320px; /* Уменьшенный размер для 3 в ряд */
+    border-radius: 12px; /* Закруглённые углы */
+    overflow: hidden;
+    transition: transform 0.5s ease; /* Плавное увеличение */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Тень */
+    position: relative;
+    flex: 0 0 auto; /* Не растягиваем, фиксированная ширина */
+}
+
+/* При наведении аватар увеличивается */
+.team-icon:hover {
+    transform: scale(1.3);
+}
+
+.team-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Обрезаем фото, чтобы оно заполнило квадрат */
+    object-position: center; /* Центрируем изображение */
+}
+
+/* Подложка с описанием при наведении */
+.team-description {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.7); /* Полупрозрачный черный */
+    color: white;
+    padding: 10px;
+    transform: translateY(100%); /* Скрыта полностью изначально */
+    transition: transform 0.5s ease;
+    text-align: center;
+    z-index: 10;
+}
+
+.team-icon:hover .team-description {
+    transform: translateY(0); /* Появляется при наведении */
+}
+
+.team-description h4 {
+    margin: 0 0 5px 0;
+    font-size: 1rem;
+}
+
+.team-description p {
+    margin: 0;
+    font-size: 0.85rem;
+}
+
+/* Стиль для информации о сотруднике (отображается всегда под фото) */
+.team-member {
+    text-align: center;
+    font-size: 1.5rem;
+    color: #470068;
+    font-family: 'Arial', sans-serif;
+    line-height: 1.4;
+    margin-top: 0.5rem;
+}
+
+.team-name {
+    font-weight: bold;
+}
+
+/* Адаптивность */
+@media (max-width: 1200px) {
+    .team-icons-container {
+        gap: 1rem;
+    }
+    .team-icon {
+        width: 180px;
+        height: 180px;
+    }
+}
+@media (max-width: 992px) {
+    .team-icons-container {
+        gap: 1rem;
+        justify-content: center;
+    }
+    .team-icon {
+        width: 150px;
+        height: 150px;
+    }
+    .team-description h4 {
+        font-size: 0.9rem;
+    }
+    .team-description p {
+        font-size: 0.8rem;
+    }
+    .team-member {
+        font-size: 0.9rem;
+    }
+}
+@media (max-width: 768px) {
+    .team-icons-container {
+        flex-direction: column;
+        align-items: center;
+    }
+    .team-icon {
+        width: 200px;
+        height: 200px;
+    }
+}
+
+/* Стили для заголовка в таймлайне */
+.timeline-text-title {
+    color: #470068;
+    font-family: 'Palatino Linotype', sans-serif;
+    /*
+    sans-serif - без засечек
+    serif - с засечками
+    monospace — моноширинные шрифты (все символы имеют одинаковую ширину
+    cursive — шрифты, имитирующие рукописный стиль
+    fantasy — декоративные шрифты */
+    /*font-style: italic;              Курсив (если шрифт поддерживает) */
+    font-weight: bold;               /* Жирный (браузер попытается утолстить, см. предыдущий вопрос) */
+    /*text-decoration: underline;     Подчеркивание */
+    /* text-decoration: line-through;   Перечеркивание (заменяет подчеркивание, если оба указаны) */
+    /* text-decoration: underline line-through; Можно комбинировать */
+    font-size: 2rem;
+    /* font-weight: bold; - можно оставить или убрать */
+    /* text-shadow для имитации жирности */
+    text-shadow:
+        0.5px 0 0 currentColor, /* Тень справа */
+        -0.5px 0 0 currentColor, /* Тень слева */
+        0 0.5px 0 currentColor, /* Тень снизу */
+        0 -0.5px 0 currentColor; /* Тень сверху */
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Стили для параграфа в таймлайне */
+.timeline-text-paragraph {
+    font-size: 1.3rem;
+    color: darkred;
+    font-family: 'Ink Free', sans-serif;
+    font-weight: bold;
+    line-height: 1.6;
+    margin: 1;
+}
+
+/* Стили для заголовка под фото в таймлайне */
+.timeline-content-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Центрирует содержимое (фото и заголовок) по горизонтали */
+    text-align: center; /* Выравнивание текста внутри заголовка по центру */
+}
+
+.timeline-content-title {
+    color: #470068; /* Цвет текста */
+    font-family: 'Palatino Linotype', serif; /* Шрифт */
+    font-size: 1.5rem; /* Размер шрифта */
+    font-weight: bold; /* Жирность */
+    margin-top: 5px; /* Небольшой отступ сверху от фото */
+    text-shadow: /* Эффект "жирности" через тени, если нужно */
+        0.5px 0 0 currentColor,
+        -0.5px 0 0 currentColor,
+        0 0.5px 0 currentColor,
+        0 -0.5px 0 currentColor;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div id="timeline-container" class="position-relative" style="min-height: 100vh; padding-bottom: 320px; box-sizing: border-box;">
+
+    <!-- Центральная линия -->
+    <div id="timeline-line" class="position-absolute" style="
+        left: 50%;
+        top: 250px;
+        bottom: 20px; /* Исправлено: 220px от нижней границы timeline-container (т.е.html. 20px от подвала) */
+        width: 5px;
+        background: linear-gradient(to bottom, #470068, #FABA53);
+        transform: translateX(-50%);
+        z-index: 1;
+    "></div>
+
+    <!-- Верхний кружок -->
+    <div id="top-circle" class="position-absolute" style="
+        left: 50%;
+        top: 250px;
+        width: 50px;
+        height: 50px;
+        background-color: #470068;
+        border-radius: 50%;
+        transform: translateX(-50%) translateY(-50%);
+        z-index: 2;
+    "></div>
+
+    <!-- Нижний кружок -->
+    <div id="bottom-circle" class="position-absolute" style="
+        left: 50%;
+        bottom: 20px; /* Исправлено: 220px от нижней границы timeline-container (т.е.html. 20px от подвала) */
+        width: 15px;
+        height: 15px;
+        background-color: #FABA53;
+        border-radius: 50%;
+        transform: translateX(-50%) translateY(50%);
+        z-index: 2;
+    "></div>
+
+    <!-- Изображение на фоне -->
+<div class="container mb-5">
+    <div class="row">
+        <div class="col-12 d-flex justify-content-center">
+            <img src="{% static 'restic/images/element2.png' %}"
+                 class="img-fluid"
+                 style="transform: scale(1.05) translateY(-55px); transform-origin: center; max-width: 805px;"
+                 alt="Декор">
+        </div>
+    </div>
+</div>
+
+    <!-- Маркеры и связанный контент -->
+    <!-- 1 блок -->
+    <div class="timeline-item" data-side="left">
+        <div class="timeline-marker position-absolute" data-top="600" style="top: 600px; left: 50%; transform: translateX(-100%) translateX(12px) translateY(-50%); z-index: 2;">
+            <img src="{% static 'restic/images/timeline-left.png' %}" class="img-fluid" style="max-width: 80px;">
+        </div>
+        <!-- Контейнер для фото слева -->
+    <div class="timeline-content position-absolute" style="top: 600px; left: 0; transform: translateY(-50%); width: 45%; z-index: 2; opacity: 0; transition: opacity 0.8s ease-in-out;">
+        <div class="timeline-content-wrapper"> <!-- Новый контейнер -->
+            <img src="{% static 'restic/images/start.png' %}" class="img-fluid" style="max-width: 80%; height: auto; display: block; margin: 0 auto 10px auto; border-radius: 15px;"> <!-- Отступ снизу для заголовка -->
+            <div class="timeline-content-title">1986 — Рождение мечты</div> <!-- Заголовок под фото -->
+        </div>
+    </div>
+        <!-- Контейнер для текста справа -->
+        <div class="timeline-text position-absolute" style="top: 600px; right: 0; transform: translateY(-50%); width: 45%; z-index: 2; opacity: 0; transition: opacity 0.8s ease-in-out;">
+            <div style="color: white; padding: 0 10px; text-align: left;">
+                <h5 class="timeline-text-title">Первый гриль под звуки джаза</h5>
+                <p class="timeline-text-paragraph">В разгар перестройки, когда Москва только начинала знакомиться с западной культурой,
+                    на Арбате открылся необычный ресторан — Grill House.
+                    Его основатель, страстный поклонник эпохи джаза и американской кухни,
+                    привёз в СССР атмосферу Чикаго 1920-х: чёрно-белые полы, барные стулья,
+                    старинные граммофоны и первые в городе стейки на гриле.
+                    Это был смелый эксперимент — и он сработал.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2 блок -->
+    <div class="timeline-item" data-side="right">
+        <div class="timeline-marker position-absolute" data-top="1000" style="top: 1000px; left: 50%; transform: translateX(-12px) translateY(-50%); z-index: 2;">
+            <img src="{% static 'restic/images/timeline-right.png' %}" class="img-fluid" style="max-width: 80px;">
+        </div>
+        <!-- Контейнер для текста слева -->
+        <div class="timeline-text position-absolute" style="top: 1000px; left: 0; transform: translateY(-50%); width: 45%; z-index: 2; opacity: 0; transition: opacity 0.8s ease-in-out;">
+            <div style="color: white; padding: 0 20px; text-align: left;">
+                <h5 class="timeline-text-title">Grill House выдержал бурю</h5>
+                <p class="timeline-text-paragraph">После распада СССР многие заведения закрылись,
+                    но Grill House не просто выжил — он возродился.
+                    Владелец вложил последние сбережения в обновление интерьера и меню:
+                    появились фирменные бургеры по рецептам Чикаго,
+                    крафтовые коктейли и живые джазовые вечера по пятницам. Заведение стало убежищем для тех,
+                    кто скучал по стабильности и утончённому вкусу.</p>
+            </div>
+        </div>
+        <!-- Контейнер для фото справа -->
+        <div class="timeline-content position-absolute" style="top: 1000px; right: 0; transform: translateY(-50%); width: 45%; z-index: 2; opacity: 0; transition: opacity 0.8s ease-in-out;">
+            <div class="timeline-content-wrapper"> <!-- Новый контейнер -->
+            <img src="{% static 'restic/images/start2.jpg' %}" class="img-fluid" style="max-width: 80%; height: auto; display: block; margin: 0 auto; border-radius: 15px;">
+            <div class="timeline-content-title">1994 — Возрождение после кризиса</div> <!-- Заголовок под фото -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 3 блок -->
+    <div class="timeline-item" data-side="left">
+        <div class="timeline-marker position-absolute" data-top="1400" style="top: 1400px; left: 50%; transform: translateX(-100%) translateX(12px) translateY(-50%); z-index: 2;">
+            <img src="{% static 'restic/images/timeline-left.png' %}" class="img-fluid" style="max-width: 80px;">
+        </div>
+        <!-- Контейнер для фото слева -->
+        <div class="timeline-content position-absolute" style="top: 1400px; left: 0; transform: translateY(-50%); width: 45%; z-index: 2; opacity: 0; transition: opacity 0.8s ease-in-out;">
+            <div class="timeline-content-wrapper"> <!-- Новый контейнер -->
+                <img src="{% static 'restic/images/start3.jpg' %}" class="img-fluid" style="max-width: 80%; height: auto; display: block; margin: 0 auto 10px auto; border-radius: 15px;"> <!-- Отступ снизу для заголовка -->
+                <div class="timeline-content-title">2003 — Золотая эпоха джаза</div> <!-- Заголовок под фото -->
+            </div>
+        </div>
+        <!-- Контейнер для текста справа -->
+        <div class="timeline-text position-absolute" style="top: 1400px; right: 0; transform: translateY(-50%); width: 45%; z-index: 2; opacity: 0; transition: opacity 0.8s ease-in-out;">
+            <div style="color: white; padding: 0 20px; text-align: left;">
+                <h5 class="timeline-text-title">Где играет душа города</h5>
+                <p class="timeline-text-paragraph">В начале 2000-х Grill House стал культовым местом
+                    для московской богемы. Здесь выступали джазовые оркестры, поэты читали стихи
+                    под саксофон, а стены украшали репродукции Эдварда Хоппера.
+                    В меню появились блюда в стиле «великого Гэтсби» — устрицы с шампанским,
+                    ростбиф с вишнёвым соусом и фирменный чизкейк по старинному рецепту из Бруклина.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4 блок -->
+    <div class="timeline-item" data-side="right">
+        <div class="timeline-marker position-absolute" data-top="1800" style="top: 1800px; left: 50%; transform: translateX(-12px) translateY(-50%); z-index: 2;">
+            <img src="{% static 'restic/images/timeline-right.png' %}" class="img-fluid" style="max-width: 80px;">
+        </div>
+        <!-- Контейнер для текста слева -->
+        <div class="timeline-text position-absolute" style="top: 1800px; left: 0; transform: translateY(-50%); width: 45%; z-index: 2; opacity: 0; transition: opacity 0.8s ease-in-out;">
+            <div style="color: white; padding: 0 20px; text-align: left;">
+                <h5 class="timeline-text-title">Современность в винтажной оправе</h5>
+                <p class="timeline-text-paragraph">Ресторан модернизировал кухню и сервис,
+                    но сохранил атмосферу: антикварные лампы, виниловые пластинки и бармены в
+                    подтяжках. Появилось вегетарианское меню в духе эпохи Нью-Дил,
+                    а коктейльная карта расширилась классикой prohibition-эры — от «Old Fashioned»
+                    до «Sidecar». Заведение стало мостом между прошлым и настоящим.</p>
+            </div>
+        </div>
+        <!-- Контейнер для фото справа -->
+        <div class="timeline-content position-absolute" style="top: 1800px; right: 0; transform: translateY(-50%); width: 45%; z-index: 2; opacity: 0; transition: opacity 0.8s ease-in-out;">
+            <div class="timeline-content-wrapper"> <!-- Новый контейнер -->
+                <img src="{% static 'restic/images/start4.jpg' %}" class="img-fluid" style="max-width: 80%; height: auto; display: block; margin: 0 auto 10px auto; border-radius: 15px;"> <!-- Отступ снизу для заголовка -->
+                <div class="timeline-content-title">2012 — Обновление без потери духа</div> <!-- Заголовок под фото -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 5 блок -->
+    <div class="timeline-item" data-side="left">
+        <div class="timeline-marker position-absolute" data-top="2200" style="top: 2200px; left: 50%; transform: translateX(-100%) translateX(12px) translateY(-50%); z-index: 2;">
+            <img src="{% static 'restic/images/timeline-left.png' %}" class="img-fluid" style="max-width: 80px;">
+        </div>
+        <!-- Контейнер для фото слева -->
+        <div class="timeline-content position-absolute" style="top: 2200px; left: 0; transform: translateY(-50%); width: 45%; z-index: 2; opacity: 0; transition: opacity 0.8s ease-in-out;">
+            <div class="timeline-content-wrapper"> <!-- Новый контейнер -->
+                <img src="{% static 'restic/images/start5.jpg' %}" class="img-fluid" style="max-width: 80%; height: auto; display: block; margin: 0 auto 10px auto; border-radius: 15px;"> <!-- Отступ снизу для заголовка -->
+                <div class="timeline-content-title">2019 — Grill House за пределами Москвы</div> <!-- Заголовок под фото -->
+            </div>
+        </div>
+        <!-- Контейнер для текста справа -->
+        <div class="timeline-text position-absolute" style="top: 2200px; right: 0; transform: translateY(-50%); width: 45%; z-index: 2; opacity: 0; transition: opacity 0.8s ease-in-out;">
+            <div style="color: white; padding: 0 20px; text-align: left;">
+                <h5 class="timeline-text-title">Идея, ставшая империей</h5>
+                <p class="timeline-text-paragraph">Успех московского ресторана вдохновил на открытие
+                    филиалов в Санкт-Петербурге и Казани. Но главный Grill House на Арбате остался
+                    сердцем бренда — местом паломничества для туристов и символом того,
+                    как можно сохранить уникальную концепцию на протяжении десятилетий.</p>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- 6 блок -->
+    <div class="timeline-item" data-side="right">
+        <div class="timeline-marker position-absolute" data-top="2600" style="top: 2600px; left: 50%; transform: translateX(-12px) translateY(-50%); z-index: 2;">
+            <img src="{% static 'restic/images/timeline-right.png' %}" class="img-fluid" style="max-width: 80px;">
+        </div>
+        <!-- Контейнер для текста слева -->
+        <div class="timeline-text position-absolute" style="top: 2600px; left: 0; transform: translateY(-50%); width: 45%; z-index: 2; opacity: 0; transition: opacity 0.8s ease-in-out;">
+            <div style="color: white; padding: 0 20px; text-align: left;">
+                <h5 class="timeline-text-title">Всё по-прежнему: джаз, гриль и тепло</h5>
+                <p class="timeline-text-paragraph">Сегодня Grill House — не просто ресторан,
+                    а живой музей эпохи джаза. Здесь отмечают юбилеи, первые свидания и даже снимают
+                    кино. Меню почти не изменилось за 40 лет, но в мире перемен Grill House остаётся
+                    опорой стиля, вкуса и душевности.</p>
+            </div>
+        </div>
+        <!-- Контейнер для фото справа -->
+        <div class="timeline-content position-absolute" style="top: 2600px; right: 0; transform: translateY(-50%); width: 45%; z-index: 2; opacity: 0; transition: opacity 0.8s ease-in-out;">
+            <div class="timeline-content-wrapper"> <!-- Новый контейнер -->
+                <img src="{% static 'restic/images/start6.jpg' %}" class="img-fluid" style="max-width: 80%; height: auto; display: block; margin: 0 auto 10px auto; border-radius: 15px;"> <!-- Отступ снизу для заголовка -->
+                <div class="timeline-content-title">2025 — 39 лет в ритме джаза</div> <!-- Заголовок под фото -->
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Конец таймлайна -->
+
+<!-- Блок "Наша команда" -->
+<div class="container mt-5">
+    <h3 class="team-title">Наша команда</h3>
+
+    <!-- Контейнер для аватаров — квадраты -->
+    <div class="team-icons-container">
+  {% for worker in staff %}
+    <div class="text-center">
+      <div class="team-icon">
+        {% if worker.image %}
+          <img src="{{ worker.image.url }}" alt="{{ worker.name }}">
+        {% else %}
+          <img src="{% static 'restic/images/default-avatar.png' %}" alt="Нет фото">
+        {% endif %}
+        <div class="team-description">
+          <h4>{{ worker.name }}</h4>
+          <p>{{ worker.description }}</p>
+        </div>
+      </div>
+      <div class="team-member">
+        <div class="team-name">{{ worker.get_position_display }}</div>
+      </div>
+    </div>
+  {% endfor %}
+
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Ваш JavaScript для таймлайна остается без изменений
+document.addEventListener('DOMContentLoaded', function () {
+    const container = document.getElementById('timeline-container');
+    const line = document.getElementById('timeline-line');
+    const bottomCircle = document.getElementById('bottom-circle');
+    const footerHeight = 100; // Высота подвала (подберите под ваш дизайн)
+    const timelineBottomOffset = 220; // Исправлено: 200px (от маркера) + 20px (от подвала) = 220px
+    const requiredPaddingBottom = footerHeight + timelineBottomOffset; // Общий отступ снизу у контейнера (100 + 220 = 320)
+
+    function adjustTimeline() {
+        // Устанавливаем общий отступ снизу у контейнера, чтобы линия/круг не заходили на подвал
+        container.style.paddingBottom = requiredPaddingBottom + 'px';
+
+        // Высчитываем, где находится самый нижний элемент (например, маркер на 1500px)
+        let lowestTop = 0;
+        const markers = document.querySelectorAll('.timeline-marker');
+        markers.forEach(marker => {
+            const top = parseInt(marker.style.top || 0);
+            if (top > lowestTop) {
+                lowestTop = top;
+            }
+        });
+
+        // Убедимся, что минимальная высота контейнера позволяет разместить самый нижний маркер и отступ до подвала
+        const minContainerHeight = lowestTop + requiredPaddingBottom;
+        if (parseInt(container.style.minHeight) < minContainerHeight) {
+            container.style.minHeight = minContainerHeight + 'px';
+        }
+    }
+
+    // Вызываем при загрузке
+    adjustTimeline();
+
+    // --- ЛОГИКА ПЛАВНОГО ПОЯВЛЕНИЯ ПРИ ПРОКРУТКЕ (с шагом 500px) ---
+    const timelineItems = document.querySelectorAll('.timeline-item');
+    // Создаём массив объектов, содержащих маркер, связанные элементы и флаг появления
+    const itemsWithPositions = Array.from(timelineItems).map(item => {
+        const marker = item.querySelector('.timeline-marker');
+        return {
+            marker: marker,
+            content: item.querySelector('.timeline-content'),
+            text: item.querySelector('.timeline-text'),
+            hasAppeared: false // Флаг для отслеживания, появлялся ли элемент
+        };
+    });
+
+    function checkAndAnimate() {
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        const windowHeight = window.innerHeight;
+        const viewportCenter = scrollTop + windowHeight / 2;
+
+        itemsWithPositions.forEach(item => {
+            if (!item.hasAppeared) {
+                // Получаем позицию маркера из его атрибута data-top
+                const markerTop = parseInt(item.marker.getAttribute('data-top'));
+                // Проверяем, находится ли центр маркера в пределах +/- 250px от центра экрана (шаг 500px)
+                if (Math.abs(markerTop - viewportCenter) <= 250) {
+                    // Плавно делаем фото и текст непрозрачными
+                    if (item.content) {
+                        item.content.style.opacity = '1';
+                    }
+                    if (item.text) {
+                        item.text.style.opacity = '1';
+                    }
+                    item.hasAppeared = true; // Отмечаем, что элемент появился
+                }
+            }
+        });
+    }
+
+    // Проверяем при загрузке
+    checkAndAnimate();
+
+    // Проверяем при прокрутке
+    window.addEventListener('scroll', checkAndAnimate);
+
+    // --- КОНЕЦ ЛОГИКИ ПОЯВЛЕНИЯ ---
+});
+</script>
+{% endblock %}
